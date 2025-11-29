@@ -1,0 +1,246 @@
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+}
+#contents_wrap {
+  display: flex;
+  justify-content: center;
+  width: 1530px;
+  height: 850px;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+
+.check_wrap {
+  background-color: white;
+  width: 100%;
+  height: 600px;
+}
+#check_member_wrap {
+  width: 1530px;
+}
+
+.member_Manage_wrap {
+  background-color: white;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  width: 800px;
+  margin-top: 80px;
+  height: 700px;
+  border-radius: 15px;
+}
+.info_Wrap {
+  width: 800px;
+  height: 450px;
+}
+
+.button_wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  width: 100%;
+  height: 100px;
+}
+
+.div_change_btn {
+  width: 140px;
+  height: 70px;
+  background-color: white;
+  border-radius: 15px;
+  border: 2px solid green;
+  cursor: pointer;
+  font-family: "NanumSquareNeoHeavy";
+  font-size: 20px;
+  margin: 20px;
+}
+.div_change_btn:hover {
+  transform: translateY(-5px);
+  background: rgb(232, 255, 216);
+}
+/*아이템,페이지 요소 */
+.top {
+  display: flex;
+  height: 48px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom: 2px solid green;
+}
+
+.li-item {
+  display: flex;
+  height: 39px;
+  border-bottom: 1px solid #ddd;
+}
+
+.member_List .id {
+  width: 13%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+.member_List .name {
+  width: 7%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 21px;
+}
+.member_List .gender {
+  width: 5%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+
+.member_List .email {
+  width: 23%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+.member_List .hp {
+  width: 13%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+.member_List .signup_date {
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+.member_List .birthdate {
+  width: 10%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+.member_List .modify {
+  width: 7%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+.member_List .panalty_count {
+  width: 8%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+}
+
+.member_List .modify input {
+  font-size: 20px;
+  background-color: white;
+  border-radius: 5px;
+  border: 2px solid green;
+}
+.member_List .modify input:hover {
+  background: rgb(232, 255, 216);
+}
+
+.list_Page {
+  width: 100%;
+  height: 100px;
+  border-top: 2px gray solid;
+  text-align: center;
+  padding-top: 20px;
+  background-color: white;
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
+}
+.list_Page a {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  border: 2px solid black;
+  line-height: 100%;
+  border-radius: 6px;
+  margin: 5px;
+}
+.list_Page a.bt {
+  padding-top: 10px;
+  font-size: 25px;
+  letter-spacing: -1px;
+}
+
+.list_Page a.num_p {
+  padding-top: 9px;
+  font-size: 25px;
+}
+
+.list_Page a.num_p.on {
+  border-color: black;
+  background: rgb(232, 255, 216);
+  color: black;
+}
+.list_Page a.num_p:hover {
+  transform: translateY(-5px);
+  background: rgb(232, 255, 216);
+}
+.list_Page a.bt:hover {
+  transform: translateY(-5px);
+  background: rgb(232, 255, 216);
+}
+
+#searchForm {
+  margin-left: 10%;
+  width: 80%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+#search_Bar {
+  width: 70%;
+  height: 45px;
+  border-radius: 10px;
+  border: 3px solid black;
+}
+#member_Search_Btn {
+  width: 15%;
+  height: 50px;
+  border-radius: 10px;
+  border: 3px solid black;
+  background-color: white;
+  cursor: pointer;
+  margin-left: 5%;
+}
+
+.info_item {
+  width: 800px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  margin-left: 140px;
+}
+.info_item p {
+  font-size: 25px;
+  font-family: "NanumSquareNeoHeavy";
+  margin-left: 20px;
+}
+.info_item input {
+  font-size: 25px;
+  font-family: "NanumSquareNeoHeavy";
+  border: 2px solid green;
+}
+.button_wrap a {
+  width: 60px;
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="kor">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>book Manger</title>
+    <link href="https://hangeul.pstatic.net/hangeul_static/css/nanum-square-neo.css" rel="stylesheet" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/Main.css" />
+  </head>
+  <body>
+    <div id="header">
+      <div class="header-bar">
+        <div id="logo">
+          <img src="./img/logo.png" width="120px" height="100px" />
+        </div>
+        <div class="Menu-bar" id="Menu-bar_Member" style="display: none">
+          <a class="Menu-item" type="button" href="mypage.html">내정보</a>
+          <a class="Menu-item" type="button" href="CheckBook.html">도서대출/반납</a>
+        </div>
+        <div class="Menu-bar" id="Menu-bar_Manager" style="display: none">
+          <a class="Menu-item" type="button" href="Member.html">회원관리</a>
+          <a class="Menu-item" type="button" href="CheckBook.html">도서대출/반납</a>
+          <a class="Menu-item" type="button" href="bookDataEdit.html">도서편집</a>
+        </div>
+        <div id="login">
+          <div id="login_before">
+            <a href="Login.html">로그인</a>
+          </div>
+          <div id="login_after" style="display: none">
+            <button onclick="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="wrap">
+      <div class="find_book_container">
+        <div class="find_title">
+          <strong>도서 검색</strong>
+          <p>검색하고 싶은 도서의 정보를 입력하세요</p>
+        </div>
+        <div class="find_book">
+          <form id="searchForm" method="POST" action="/search">
+            <input id="booksearch_input" type="text" placeholder="도서 이름 입력" />
+            <input id="booksearch_button" type="submit" value="검색" />
+          </form>
+        </div>
+      </div>
+      <div id="search_Result" style="display: none">
+        <div class="close_btn" id="close_btn" onclick="closeList()">X</div>
+        <div class="Result_container">
+          <div class="Result_wrap">
+            <div class="Result_list_wrap">
+              <div class="Result_list" id="Result_list">
+                <div class="top">
+                  <div class="b_title">책 제목</div>
+                  <div class="b_writer">저자</div>
+                  <div class="b_publish">출판사</div>
+                  <div class="b_amount">수량</div>
+                </div>
+              </div>
+              <div class="board_page" id="board_page"></div>
+            </div>
+          </div>
+          <div class="Result_Detail" id="Result_Detail" style="display: none">
+            <div class="Detail_top">
+              <p id="p_title">제목</p>
+            </div>
+            <div class="Detail_middle">
+              <div class="Detail_middle_item">
+                <div class="Detail_Writer">
+                  <p id="p_writer">저자</p>
+                </div>
+                <div class="Detail_Publish">
+                  <p id="p_publish">출판사</p>
+                </div>
+              </div>
+              <div class="Detail_image" id="Detail_image"></div>
+            </div>
+            <div class="Detail_bottom">
+              <div class="Detail_info">
+                <p id="p_info">겁나 긴 내용</p>
+              </div>
+              <div class="Detail_amount">
+                <div class="amount_wrap">
+                  <p>책 번호:</p>
+                  <p id="p_num"></p>
+                  <p>재고 수량:</p>
+                  <p id="p_amount">수량</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="footer"></div>
+    <script>
+      function logout() {
+        localStorage.removeItem("authToken");
+        window.location.href = "Main.html";
+      }
+    </script>
+    <script src="./js/token_check.js"></script>
+    <script src="./js/Main.js"></script>
+  </body>
+</html>
