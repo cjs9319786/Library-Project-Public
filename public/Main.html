@@ -62,36 +62,73 @@
               <div class="board_page" id="board_page"></div>
             </div>
           </div>
-          <div class="Result_Detail" id="Result_Detail" style="display: none">
-            <div class="Detail_top">
-              <p id="p_title">제목</p>
-            </div>
-            <div class="Detail_middle">
-              <div class="Detail_middle_item">
-                <div class="Detail_Writer">
-                  <p id="p_writer">저자</p>
-                </div>
-                <div class="Detail_Publish">
-                  <p id="p_publish">출판사</p>
-                </div>
-              </div>
-              <div class="Detail_image" id="Detail_image"></div>
-            </div>
-            <div class="Detail_bottom">
-              <div class="Detail_info">
-                <p id="p_info">겁나 긴 내용</p>
-              </div>
-              <div class="Detail_amount">
-                <div class="amount_wrap">
-                  <p>책 번호:</p>
-                  <p id="p_num"></p>
-                  <p>재고 수량:</p>
-                  <p id="p_amount">수량</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div id="modal_overlay" class="modal_overlay" style="display: none;">
+  
+  <!-- 도서 상세 정보 출력 -->
+  <div class="Result_Detail" id="Result_Detail">
+    
+    <span class="close_modal_btn" onclick="closeDetail()" style="position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer;">×</span>
+
+    <div class="Detail_top" style="flex-direction: column; gap: 5px;"> <p id="p_title" style="font-size: 24px; font-weight: bold;">제목</p>
+  
+      <div id="p_rating_container" style="font-size: 18px; color: #f39c12;">
+        <span id="p_stars">⭐⭐⭐⭐⭐</span> 
+        <span id="p_rating_value" style="color: black; font-size: 16px;">(0.0)</span>
+      </div>
+    </div>
+    
+    <div class="Detail_middle">
+      <div class="Detail_middle_item">
+        <div class="Detail_Writer">
+          <span style="font-weight:bold; color:#555;">저자: </span>
+          <span id="p_writer">저자</span>
         </div>
+        <div class="Detail_Publish">
+          <span style="font-weight:bold; color:#555;">출판사: </span>
+          <span id="p_publish">출판사</span>
+        </div>
+      </div>
+      <div class="Detail_image" id="Detail_image"></div>
+    </div>
+
+    <div class="Detail_bottom">
+      <div class="Detail_info">
+        <p id="p_info" style="color:#666;">내용</p>
+      </div>
+      <div class="Detail_amount">
+        <div class="amount_wrap">
+          <p>ISBN: <span id="p_num" style="font-weight:normal;"></span></p>
+          <p>재고 수량: <span id="p_amount" style="color:blue; font-weight:bold;">수량</span></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="Detail_Review_Section" style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
+        <h3>도서 리뷰</h3>
+        
+        <div id="my_review_actions" style="margin: 10px 0;"></div>
+
+        <div id="review_form_container" style="display: none; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+            <label>평점: <select id="review_rating">
+                <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                <option value="4">⭐⭐⭐⭐ (4)</option>
+                <option value="3">⭐⭐⭐ (3)</option>
+                <option value="2">⭐⭐ (2)</option>
+                <option value="1">⭐ (1)</option>
+            </select></label>
+            <br><br>
+            <textarea id="review_content" style="width: 100%; height: 60px;" placeholder="리뷰 내용을 입력하세요"></textarea>
+            <div style="margin-top: 10px; text-align: right;">
+                <button onclick="submitReview()" style="cursor:pointer; padding: 5px 10px; background:green; color:white;">저장</button>
+                <button onclick="closeReviewForm()" style="cursor:pointer; padding: 5px 10px;">취소</button>
+            </div>
+        </div>
+
+        <div id="reviews_list" style="margin-top: 15px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+    
+  </div>
+</div>
       </div>
     </div>
     <div id="footer"></div>
