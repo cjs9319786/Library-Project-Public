@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       });
       
-      // [디버깅] 서버 응답 상태 확인
+      // [디버깅] 서버 응답 상태 확인 
       if (!response.ok) {
           const errText = await response.text();
           throw new Error(`서버 응답 오류 (Status: ${response.status})\n내용: ${errText}`);

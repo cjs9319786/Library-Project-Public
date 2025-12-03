@@ -36,5 +36,5 @@ document.addEventListener("DOMContentLoaded", function () {
   if(menuManager) menuManager.style.display = "none"; 
 
   // 만약 관리자 메뉴를 띄워야 한다면, 로그인 시 localStorage에 'role'을 저장하고
-  // 여기서 if (localStorage.getItem('role') === 'admin') 조건을 추가해야 합니다.
+  // 여기서 if (localStorage.getItem('role') === 'admin') 조건을 추가해야 합니다. 
 });
