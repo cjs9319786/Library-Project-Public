@@ -49,7 +49,8 @@ document.addEventListener("DOMContentLoaded", () => {
         amount: row.stock_count !== undefined ? row.stock_count : 0,
         rating: row.avg_rating ? parseFloat(row.avg_rating).toFixed(1) : "0.0",
         /* 서버에서 제공하지 않는 데이터는 기본값으로 설정 */
-        info: "상세 설명이 없습니다."
+        info: "상세 설명이 없습니다.",
+        image_url: row.image_url
       }));
 
       console.log("Mapped Books:", booksArr);
@@ -195,7 +196,24 @@ async function display_Detail(isbn) {
   
   // 이미지 처리
   const imageElement = document.getElementById("Detail_image");
-  if (imageElement) imageElement.innerHTML = `<div style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center;">이미지 없음</div>`;
+  if (imageElement) {
+      // 이미지 URL이 있고 비어있지 않다면 이미지 태그 생성
+      if (selectedBook.image_url && selectedBook.image_url.trim() !== "") {
+          imageElement.innerHTML = `
+            <img src="${selectedBook.image_url}"
+                 width="50"
+                 height="100"  
+                 alt="${selectedBook.title}" 
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 5px;">
+          `;
+      } else {
+          // 이미지가 없으면 기존 회색 박스 유지
+          imageElement.innerHTML = `
+            <div style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center; color:#888;">
+                이미지 없음
+            </div>`;
+      }
+  }
 
   // 리뷰 관련 UI 초기화 및 데이터 로드
   closeReviewForm();                                            // 폼 닫기

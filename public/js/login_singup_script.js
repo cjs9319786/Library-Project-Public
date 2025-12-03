@@ -1,114 +1,155 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // DOM 요소 가져오기
   const checkIdButton = document.getElementById("check_id");
   const checkIdPass = document.getElementById("check_id_pass");
   const checkIdNonPass = document.getElementById("check_id_nonpass");
-  const checkEmailButton = document.getElementById("check_email");
+  
+  // 이메일 중복 체크 버튼은 HTML에 없어서 추가가 필요하거나, 
+  // 로직상 필요하다면 HTML에 id="check_email" 버튼을 만드셔야 합니다.
+  // 여기서는 코드가 동작하도록 방어적으로 작성합니다.
+  const checkEmailButton = document.getElementById("check_email"); 
   const checkEmailPass = document.getElementById("check_email_pass");
   const checkEmailNonPass = document.getElementById("check_email_nonpass");
-  var member_id = document.getElementById("member_id");
-  var change_id = document.getElementById("change_id"); 
+
+  const member_id_input = document.getElementById("member_id");
+  const change_id_btn = document.getElementById("change_id");
+  
+  // 상태 변수
   let isIdChecked = false;
-  let isEmailChecked = false;
-  //회원가입허용 ID 사전준비
+  // 이메일 체크 버튼이 없으면 true로 두어 가입 막히지 않게 함 (있다면 false로 시작)
+  let isEmailChecked = checkEmailButton ? false : true; 
 
-  // 이부분은 제가 수정하겠습니다.
+  // 1. ID 중복 체크 설정
   function setupIdCheck() {
-    //ID중복체크
     checkIdButton.addEventListener("click", async function () {
-      const id = document.getElementById("member_id").value;
+      const idValue = member_id_input.value.trim();
+      if(!idValue) {
+        alert("아이디를 입력해주세요.");
+        return;
+      }
 
-      const response = await fetch("엔드포인트", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ member_id: id }),
-      });
+      try {
+        const response = await fetch("http://127.0.0.1:8000/api/check-id/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ member_id: idValue }),
+        });
+        
+        const result = await response.json();
 
-      const result = await response.json();
-
-      if (result.status == "error") {
-        checkIdPass.style.display = "none";
-        checkIdNonPass.style.display = "block";
-        isIdChecked = false;
-      } else {
-        checkIdPass.style.display = "block";
-        checkIdNonPass.style.display = "none";
-        isIdChecked = true;
-        member_id.readOnly = true;
-        change_id.style.display = "block";
-        check_id.style.display = "none";
+        if (result.status === "error") {
+          // 중복됨
+          checkIdPass.style.display = "none";
+          checkIdNonPass.style.display = "block";
+          isIdChecked = false;
+        } else {
+          // 사용 가능
+          checkIdPass.style.display = "block";
+          checkIdNonPass.style.display = "none";
+          isIdChecked = true;
+          
+          // 아이디 수정 불가 처리
+          member_id_input.readOnly = true;
+          change_id_btn.style.display = "block"; // "ID 바꾸기" 버튼 표시
+          checkIdButton.style.display = "none";  // "중복확인" 버튼 숨김
+        }
+      } catch (error) {
+        console.error(error);
+        alert("서버 통신 오류");
       }
     });
-    //ID 중복체크 여부 검사기
-    document.getElementById("signupForm").addEventListener("submit", function (event) {
-      if (!isIdChecked) {
-        event.preventDefault();
-        alert("ID 중복 확인을 해주세요.");
-      }
-    });
-  }
-  //회원가입허용 Email 사전준비
-  function setupEmailCheck() {
-    //Email 중복체크
-    checkEmailButton.addEventListener("click", async function () {
-      const email = document.getElementById("email").value;
 
-      const response = await fetch("엔드포인트", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: email }),
-      });
-
-      const result = await response.json();
-      console.log(result.status);
-
-      if (result.status == "error") {
-        checkEmailPass.style.display = "none";
-        checkEmailNonPass.style.display = "block";
-        isEmailChecked = false;
-      } else {
-        checkEmailPass.style.display = "block";
-        checkEmailNonPass.style.display = "none";
-        isEmailChecked = true;
-      }
-    });
-    //Email 검사기
-    document.getElementById("signupForm").addEventListener("submit", function (event) {
-      if (!isEmailChecked) {
-        event.preventDefault();
-        alert("이메일 중복 확인을 해주세요.");
-      }
+    // ID 바꾸기 버튼 클릭 시 초기화
+    change_id_btn.addEventListener("click", function() {
+      member_id_input.readOnly = false;
+      member_id_input.value = "";
+      change_id_btn.style.display = "none";
+      checkIdButton.style.display = "block";
+      checkIdPass.style.display = "none";
+      checkIdNonPass.style.display = "none";
+      isIdChecked = false;
     });
   }
-  //로그인폼 id/pw값 서버로 보냄
+
+  // 2. 회원가입 폼 제출 (JSON 전송)
+  document.getElementById("signupForm").addEventListener("submit", async function (event) {
+    event.preventDefault(); // 기본 폼 제출 막기
+
+    // 유효성 검사
+    if (!isIdChecked) {
+      alert("ID 중복 확인을 해주세요.");
+      return;
+    }
+    
+    // 데이터 매핑 (HTML id -> DB 필드명)
+    // views.py의 signup 함수가 기대하는 키: login_id, password, first_name, email, birth_date, phone_number
+    const formData = {
+      login_id: document.getElementById("member_id").value,
+      password: document.getElementById("password").value,
+      first_name: document.getElementById("name").value,
+      birth_date: document.getElementById("birthdate").value,
+      phone_number: document.getElementById("hp").value,
+      // 이메일 필드가 HTML에 없다면 추가해야 합니다. 임시로 id를 이메일처럼 쓰거나 빈값 처리
+      // 만약 HTML에 <input id="email">이 있다면 document.getElementById("email").value 사용
+      email: document.getElementById("member_id").value + "@example.com" 
+    };
+    
+    // HTML에 email 입력창이 없는데 DB에는 필수라면 HTML에 추가해야 합니다.
+    // 여기서는 사용자가 HTML에 email input을 추가한다고 가정하거나, 코드를 수정해야 합니다.
+    // *주의*: 현재 HTML 코드에는 name="email" input이 안 보입니다. 
+    // views.py는 email을 필수값으로 받으므로 HTML에 <input type="email" id="email" ...>을 꼭 추가해주세요.
+    
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/signup/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert("회원가입 성공! 로그인해주세요.");
+        window.location.reload(); // 혹은 로그인 화면으로 전환 함수 호출
+      } else {
+        alert(result.error || "회원가입 실패");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("회원가입 요청 중 오류 발생");
+    }
+  });
+
+
+  // 3. 로그인 폼 제출
   document.getElementById("loginForm").addEventListener("submit", async function (event) {
     event.preventDefault();
+    
     const formData = new FormData(this);
-    console.log(formData);
     const data = {
-      id: formData.get("id"),
+      login_id: formData.get("id"), // HTML name="id"
       password: formData.get("password"),
     };
 
     try {
-      const response = await fetch("/login", {
+      const response = await fetch("http://127.0.0.1:8000/api/login/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
       const result = await response.json();
 
-      if (result.token) {
-        localStorage.setItem("authToken", result.token);
+      if (response.ok) {
+        // Main.js 호환용 토큰 처리 (세션 방식이지만 로컬스토리지에 플래그 저장)
+        localStorage.setItem("authToken", "session_active");
+        localStorage.setItem("loginId", result.user.login_id);
+        
+        alert(result.message);
         window.location.href = "Main.html";
       } else {
-        alert("아이디 혹은 비밀번호가 잘못되었습니다. 다시 입력해주세요");
+        alert(result.error || "로그인 실패");
       }
     } catch (error) {
       console.error("Error:", error);
@@ -116,6 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  // 초기화 함수 실행
   setupIdCheck();
-  setupEmailCheck();
+  // setupEmailCheck(); // 이메일 버튼이 HTML에 있다면 주석 해제
 });

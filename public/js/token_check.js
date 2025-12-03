@@ -1,50 +1,41 @@
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", function () {
+  // 1. 로컬 스토리지에서 저장된 토큰(플래그) 가져오기
   const token = localStorage.getItem("authToken");
-  console.log("토큰존재 확인");
-  // 토큰의 존재로 로그인 여부 확인
+  
+  // HTML 요소 가져오기 (오류 방지를 위해 변수에 담음)
+  const menuManager = document.getElementById("Menu-bar_Manager");
+  const menuMember = document.getElementById("Menu-bar_Member");
+  const loginBefore = document.getElementById("login_before");
+  const loginAfter = document.getElementById("login_after");
+
+  // 2. 토큰이 없을 때 (비로그인 상태)
   if (!token) {
-    document.getElementById("Menu-bar_Manager").style.display = "none";
-    document.getElementById("Menu-bar_Member").style.display = "none";
-    console.log("토큰존재 없음");
+    console.log("비로그인 상태");
+    
+    // 메뉴 숨김
+    if(menuManager) menuManager.style.display = "none";
+    if(menuMember) menuMember.style.display = "none";
+    
+    // 로그인 버튼 보이기
+    if(loginBefore) loginBefore.style.display = "block";
+    if(loginAfter) loginAfter.style.display = "none";
+    
+    // Main.html은 누구나 볼 수 있어야 하므로 강제 리다이렉트(window.location.href) 코드는 삭제했습니다.
     return;
   }
-  console.log("토큰존재 있음");
-  console.log(token);
-  try {
-    const response = await fetch("/login/verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
 
-    if (!response.ok) {
-      throw new Error("네트워크 이상.");
-    }
+  // 3. 토큰이 있을 때 (로그인 상태)
+  console.log("로그인 상태 확인됨");
+  
+  // 로그인 버튼 숨기고 로그아웃 버튼 보이기
+  if(loginBefore) loginBefore.style.display = "none";
+  if(loginAfter) loginAfter.style.display = "block";
 
-    const data = await response.json();
+  // 메뉴 보이기 (우선 일반 회원 메뉴를 기본으로 보여줍니다)
+  // 관리자 여부는 현재 로컬 스토리지에 저장하지 않았으므로 기본적으로 회원 메뉴를 띄웁니다.
+  if(menuMember) menuMember.style.display = "flex"; 
+  if(menuManager) menuManager.style.display = "none"; 
 
-    console.log(data);
-    if (!data.valid) {
-      localStorage.removeItem("authToken");
-      window.location.href = "login.html";
-    } else {
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
-      }
-      if (data.admin == 1) {
-        document.getElementById("Menu-bar_Manager").style.display = "block";
-        document.getElementById("Menu-bar_Member").style.display = "none";
-      } else {
-        document.getElementById("Menu-bar_Manager").style.display = "none";
-        document.getElementById("Menu-bar_Member").style.display = "block";
-      }
-      document.getElementById("login_before").style.display = "none";
-      document.getElementById("login_after").style.display = "block";
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    window.location.href = "Login.html";
-  }
+  // (참고) 만약 관리자 메뉴를 띄워야 한다면, 로그인 시 localStorage에 'role'을 저장하고
+  // 여기서 if (localStorage.getItem('role') === 'admin') 조건을 추가해야 합니다.
 });

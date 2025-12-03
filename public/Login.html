@@ -20,13 +20,12 @@
         <h2 style="padding-bottom: 30px; border-bottom: 2px solid green; font-size: 37px; color: green">로그인</h2>
         <div id="login_wrap">
           <form id="loginForm" style="width: 55%; margin-left: 20%; margin-top: 5%">
-            <input type="text" name="id" placeholder="id를 입력해주세요" style="width: 55%; margin-left: 10%" required />
+            <input type="text" name="id" placeholder="id를 입력해주세요" style="width: 55%; margin-left: 10%" />
             <input
               type="password"
               name="password"
               placeholder="비밀번호를 입력해주세요"
               style="width: 55%; margin-left: 10%"
-              required
             />
             <div style="display: flex; flex-direction: row; width: 80%; margin-left: 30%">
               <button type="submit" style="width: 30%">로그인</button>
@@ -44,7 +43,7 @@
           <form id="signupForm" method="POST" action="/sign_up">
             <div class="form_item">
               <label for="member_id">ID:</label>
-              <input type="text" id="member_id" name="member_id" required />
+              <input type="text" id="member_id" name="member_id" />
             </div>
             <br />
             <div style="display: flex; flex-direction: row; width: 30%; margin-left: 30%; height: 30px">
@@ -56,23 +55,27 @@
             <br />
             <div class="form_item">
               <label for="password">비밀번호:</label>
-              <input type="password" id="password" name="password" required />
+              <input type="password" id="password" name="password" />
             </div>
             <br />
             <div class="form_item">
               <label for="name">이름:</label>
-              <input type="text" id="name" name="name" required />
+              <input type="text" id="name" name="name" />
             </div>
             <br />
             <div class="form_item">
               <label for="birthdate">생년월일:</label>
-              <input type="date" id="birthdate" name="birthdate" required />
+              <input type="date" id="birthdate" name="birthdate" />
             </div>
             <br />
             <div class="form_item">
               <label for="hp">핸드폰 번호:</label>
-              <input type="text" id="hp" name="hp" placeholder="-없이 입력해주세요" required /><br />
+              <input type="text" id="hp" name="hp" placeholder="-없이 입력해주세요" /><br />
             </div>
+            <div class="form_item">
+              <label for="email">이메일:</label>
+              <input type="email" id="email" name="email" />
+              </div>
             <br />
             <div style="display: flex; flex-direction: row; width: 50%; margin-left: 40%">
               <button type="submit" style="width: 30%">가입하기</button>
