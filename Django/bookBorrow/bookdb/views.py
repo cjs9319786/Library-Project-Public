@@ -754,7 +754,8 @@ def delete_review(request, review_id): #URL에서 review_id를 받음
         return JsonResponse({"error": f"삭제 중 오류 발생: {str(e)}"}, status=500)
     
 
-    # ********************기능 추가*********************
+    # ********************기능 추가**********************
+# id 중복 검사
 @csrf_exempt
 def check_id_duplicate(request):
     if request.method != 'POST':
@@ -772,6 +773,7 @@ def check_id_duplicate(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
+# email 중복 검사
 @csrf_exempt
 def check_email_duplicate(request):
     if request.method != 'POST':

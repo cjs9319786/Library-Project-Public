@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if(loginBefore) loginBefore.style.display = "block";
     if(loginAfter) loginAfter.style.display = "none";
     
-    // Main.html은 누구나 볼 수 있어야 하므로 강제 리다이렉트(window.location.href) 코드는 삭제했습니다.
     return;
   }
 
@@ -36,6 +35,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if(menuMember) menuMember.style.display = "flex"; 
   if(menuManager) menuManager.style.display = "none"; 
 
-  // (참고) 만약 관리자 메뉴를 띄워야 한다면, 로그인 시 localStorage에 'role'을 저장하고
+  // 만약 관리자 메뉴를 띄워야 한다면, 로그인 시 localStorage에 'role'을 저장하고
   // 여기서 if (localStorage.getItem('role') === 'admin') 조건을 추가해야 합니다.
 });

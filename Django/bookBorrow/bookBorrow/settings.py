@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'corsheaders',                          # 추가
+    'corsheaders',                          # --추가-- corsheaders
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', # 최상단 또는 CommonMiddleware 바로 위에 추가
+    'corsheaders.middleware.CorsMiddleware', # 최상단 또는 CommonMiddleware 바로 위에 추가(4개)
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -141,7 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'bookdb.Member'
 
-# --- CORS 관련 설정 ---
+# ----- CORS 관련 설정 -----
 
 # 1. Credentials(쿠키/세션) 허용: true로 설정해야 로그인 유지가 됩니다.
 CORS_ALLOW_CREDENTIALS = True

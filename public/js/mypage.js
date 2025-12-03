@@ -2,7 +2,7 @@ let join_members = [];
 document.addEventListener("DOMContentLoaded", () => {
   const loan_info = document.getElementById("loan_info");
   
-  // ***수정*** 회원 정보 불러오기
+  // *****수정***** 회원 정보 불러오기
   async function load_member_info() {
     // 토큰 확인 (로그인 여부 체크용)
     const token = localStorage.getItem("authToken");

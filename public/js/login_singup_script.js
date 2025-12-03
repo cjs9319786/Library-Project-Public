@@ -3,14 +3,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const checkIdButton = document.getElementById("check_id");
   const checkIdPass = document.getElementById("check_id_pass");
   const checkIdNonPass = document.getElementById("check_id_nonpass");
-  
-  // 이메일 중복 체크 버튼은 HTML에 없어서 추가가 필요하거나, 
-  // 로직상 필요하다면 HTML에 id="check_email" 버튼을 만드셔야 합니다.
-  // 여기서는 코드가 동작하도록 방어적으로 작성합니다.
   const checkEmailButton = document.getElementById("check_email"); 
   const checkEmailPass = document.getElementById("check_email_pass");
   const checkEmailNonPass = document.getElementById("check_email_nonpass");
-
   const member_id_input = document.getElementById("member_id");
   const change_id_btn = document.getElementById("change_id");
   
@@ -89,15 +84,8 @@ document.addEventListener("DOMContentLoaded", function () {
       first_name: document.getElementById("name").value,
       birth_date: document.getElementById("birthdate").value,
       phone_number: document.getElementById("hp").value,
-      // 이메일 필드가 HTML에 없다면 추가해야 합니다. 임시로 id를 이메일처럼 쓰거나 빈값 처리
-      // 만약 HTML에 <input id="email">이 있다면 document.getElementById("email").value 사용
-      email: document.getElementById("member_id").value + "@example.com" 
+      email: document.getElementById("email").value
     };
-    
-    // HTML에 email 입력창이 없는데 DB에는 필수라면 HTML에 추가해야 합니다.
-    // 여기서는 사용자가 HTML에 email input을 추가한다고 가정하거나, 코드를 수정해야 합니다.
-    // *주의*: 현재 HTML 코드에는 name="email" input이 안 보입니다. 
-    // views.py는 email을 필수값으로 받으므로 HTML에 <input type="email" id="email" ...>을 꼭 추가해주세요.
     
     try {
       const response = await fetch("http://127.0.0.1:8000/api/signup/", {
