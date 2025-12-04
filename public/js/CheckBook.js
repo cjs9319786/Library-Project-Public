@@ -354,12 +354,12 @@ async function processReturn(borrowId) {
         }
     } catch (error) {
         console.error("반납 오류:", error);
-        alert("서버 통신 중 오류가 발생했습니다.");
+        alert("서버 통신 중 오류가 발생했습니다."); 
     }
 }
 
 function navigateToPage() {
-    window.location.href = "Main.html";
+    window.location.href = "Main.html";  
 }
 
 async function logout() {
