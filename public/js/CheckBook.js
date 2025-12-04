@@ -1,311 +1,398 @@
-let currentPage = 1; //현재 페이지 번호 변수
+let currentPage = 1; // 현재 페이지 번호
 const itemsPerPage = 8; // 한 페이지에 표시할 아이템 수
 const pagesPerGroup = 5; // 한 그룹에 표시할 페이지 수
-let books = []; // 검색 결과를 저장할 배열
+let books = []; // 검색 결과를 저장할 배열 (전역 변수)
 let returns = []; // 반납 검색 결과를 저장할 배열
 
-//페이지의 Dom요소가 로드된 후 실행됨.
-document.addEventListener("DOMContentLoaded", () => {
-  const boardPage = document.getElementById("board_page"); // 페이지 네비게이션 요소
-  const board = document.getElementById("result_book_div"); // 도서 검색 결과를 표시할 요소
-  const user_search_btn = document.getElementById("user_search_btn"); // 회원 검색 버튼
-  const book_search_btn = document.getElementById("book_search_btn"); // 도서 검색 버튼
-  const return_search_btn = document.getElementById("return_search_btn"); // 반납 검색 버튼
-  const loan_btn = document.getElementById("loan_btn"); // 대출 버튼
-  const p_id = document.getElementById("p_id"); //회원id
-  const p_name = document.getElementById("p_name"); //회원이름
-  const p_gender = document.getElementById("p_gender"); //회원 성별
-  const p_email = document.getElementById("p_email"); //회원 email
-  const p_hp = document.getElementById("p_hp"); //회원 전화번호
-  const p_penalty_count = document.getElementById("p_penalty_count"); //회원 위반횟수
-  const p_loan_check = document.getElementById("p_loan_check"); //회원 대출가능표시 요소
-  const result_return_div = document.getElementById("result_return_div"); //반납검색 결과표시요소
-
-  /**
-    회원 검색 버튼 클릭 이벤트.
-    입력된 회원 ID를 가져와 서버로 보낸뒤 서버에서 해당 ID의 회원 정보를 응답하면 요소를 표시.
-   */
-  user_search_btn.addEventListener("click", async function () {
-    const search_value = document.getElementById("user_search_input").value;
-    if (search_value == "") {
-      alert("검색어를 입력해주세요");
-      return;
-    }
-
-    try {
-      const response = await fetch("/search/search_Member", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ member_id: search_value }),
-      });
-      const result = await response.json();
-      if (result.isFalse == 1) {
-        alert("정확한 ID값을 입력하세요");
-        return;
-      }
-      if (result[0].admin_a == 1) {
-        alert("관리자 id입니다. 관리자는 대출기능을 이용할 수 없습니다.");
-        return;
-      }
-      if (result[0].loan_count >= 3 || result[0].penalty_count > 3) {
-        p_loan_check.textContent = "No";
-        p_loan_check.style.color = "Red";
-      } else {
-        p_loan_check.textContent = "Yes";
-        p_loan_check.style.color = "blue";
-      }
-      p_id.textContent = result[0].member_id;
-      p_name.textContent = result[0].name;
-      p_gender.textContent = result[0].gender;
-      p_email.textContent = result[0].email;
-      p_hp.textContent = result[0].hp;
-      p_penalty_count.textContent = result[0].penalty_count;
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
-  });
-
-  /**
-    도서 검색 버튼 클릭 이벤트 입력받은 도서제목값을 서버에 보내서
-    응답받은 도서 데이터를 BOOKS배열에 저장, 공지사항 생성 메서드로 인자를 넘겨서 호출.
-   */
-  book_search_btn.addEventListener("click", async function () {
-    const searchInput = document.getElementById("book_search_input").value;
-    if (searchInput === "") {
-      alert("검색어를 입력해주세요");
-      return;
-    }
-    try {
-      const response = await fetch("/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ b_title: searchInput }),
-      });
-      const result = await response.json();
-
-      if (books.isFalse == 1) {
-        alert("검색 결과가 없습니다!");
-        return;
-      }
-
-      books = result.map((row) => ({
-        b_num: row.b_num,
-        b_title: row.b_title,
-        b_amount: row.b_amount,
-      }));
-
-      display_book_list(1);
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
-  });
-  /**
-    도서 목록을 표시하는 함수
-    배열내의 아이템갯수를 계산하여 설정된 값만큼 잘라서 표시하며,
-    innerhtml을 통해 div내에 직접 아이템을 생성.
-   * @param {현재 페이지}} page
-   */
-  function display_book_list(page) {
-    currentPage = page;
-    const startIndex = (page - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentItems = books.slice(startIndex, endIndex);
-
-    board.innerHTML = `<div class="top">
-          <div class="b_num">책 번호</div>
-          <div class="b_title">책 제목</div>
-          <div class="b_amount">책 수량</div>
-        </div>`;
-    currentItems.forEach((item) => {
-      const divItem = document.createElement("div");
-      divItem.classList.add("li-item");
-      divItem.innerHTML = `
-            <div class="b_num" id="b_num_${item.b_num}">${item.b_num}</div>
-            <div class="b_title" id="b_title_${item.b_num}"><a onclick="display_div(${item.b_num})" style="cursor: pointer">${item.b_title}</a></div>
-            <div class="b_amount" id="b_amount_${item.b_num}">${item.b_amount}</div>
-          `;
-      board.appendChild(divItem);
-    });
-    // 페이지네이션 버튼 생성
-    createPaginationButtons();
-  }
-
-
-  // 책 대여 기능
-  loan_btn.addEventListener("click", async function () {
-    const b_amount = document.getElementById("b_amount").textContent;
-    const p_loan_check = document.getElementById("p_loan_check").textContent;
-    const book_number = document.getElementById("b_num").textContent;
-    const book_title = document.getElementById("b_title").textContent;
-    console.log(book_number);
-    if (p_loan_check == "") {
-      alert("대출자(회원)을 검색해주세요.");
-      return;
-    }
-    if (b_amount == 0) {
-      alert("해당 책의 재고 부족으로 대출 불가.");
-      return;
-    }
-    if (p_loan_check == "No") {
-      alert("연체횟수가 많아 대출이 제한됩니다.");
-      return;
-    }
-    const data = {
-      member_id: p_id.textContent,
-      b_num: book_number,
-      b_title: book_title,
-    };
-
-    try {
-      const response = await fetch("/loan", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        const result = await response.json();
-        console.log(result.isFalse);
-        if (result.isFalse == 1) {
-          alert("중복 대출입니다.");
-          return;
-        } else {
-          alert(`${result.member_id}님의 대출 기록이 정상적으로 추가되었습니다.
-            ${result.s_date}부터~ ${result.e_dateFormatted}까지 입니다.`);
-          window.location.href = "CheckBook.html";
+// Django CSRF 토큰 가져오기 함수 - POST 요청에 필요
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // 쿠키 이름으로 시작하는 문자열 찾기
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
         }
-      } else {
-        alert("대출 기록 추가중 오류 발생");
-        return;
-      }
-    } catch (error) {
-      console.error("Error during loan process:", error);
     }
-  });
-  //책반납 버튼 이벤트리스너 메서드
-  return_search_btn.addEventListener("click", async function () {
-    const searchInput = document.getElementById("return_search_input").value;
-    if (searchInput == "") {
-      alert("회원 ID를 입력해주세요");
-      return;
+    return cookieValue;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const boardPage = document.getElementById("board_page");
+    const board = document.getElementById("result_book_div");
+    const book_search_btn = document.getElementById("book_search_btn");
+    const return_search_btn = document.getElementById("return_search_btn");
+    const result_return_div = document.getElementById("result_return_div");
+
+    // ==============================================
+    // 1. 도서 검색 기능 (Main.js와 동일한 로직 적용)
+    // ==============================================
+    book_search_btn.addEventListener("click", async function () {
+        const searchInput = document.getElementById("book_search_input").value;
+        const searchParams = searchInput.toString().trim();
+
+        if (searchParams === "") {
+            alert("검색어를 입력해주세요");
+            return;
+        }
+
+        try {
+            // Main.js와 동일하게 GET 요청 사용
+            const endUrl = `http://127.0.0.1:8000/api/books/?q=${encodeURIComponent(searchParams)}`;
+            
+            const response = await fetch(endUrl, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            const result = await response.json();
+
+            // 결과가 없는 경우
+            if (!result.books || result.books.length === 0) {
+                alert("검색 결과가 없습니다!");
+                books = [];
+                display_book_list(1);
+                return;
+            }
+
+            // booksArr 대신 전역변수 books에 바로 할당
+            books = result.books.map((row) => ({
+                isbn: row.isbn,
+                title: row.title,
+                author: row.author,
+                publisher: row.publisher__publisher_name,
+                stock_count: row.stock_count, // views.py에서 온 stock_count 사용
+                image_url: row.image_url
+            }));
+
+            console.log("Mapped Books:", books);
+            display_book_list(1);
+
+        } catch (error) {
+            console.error("Error fetching search results:", error);
+            alert("서버 통신 중 오류가 발생했습니다.");
+        }
+    });
+
+    // ==========================================
+    // 2. 도서 목록 출력 함수
+    // ==========================================
+    function display_book_list(page) {
+        currentPage = page;
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const currentItems = books.slice(startIndex, endIndex);
+
+        // 헤더 설정
+        board.innerHTML = `
+            <div class="top">
+                <div class="b_isbn" style="width: 15%;">ISBN</div>
+                <div class="b_title" style="width: 40%;">책 제목</div>
+                <div class="b_author" style="width: 20%;">저자</div>
+                <div class="b_stock" style="width: 10%;">재고</div>
+                <div class="b_action" style="width: 15%;">기능</div>
+            </div>`;
+
+        if (currentItems.length === 0) {
+             board.innerHTML += `<div style="padding:20px; text-align:center;">검색 결과가 없습니다.</div>`;
+             boardPage.innerHTML = "";
+             return;
+        }
+
+        currentItems.forEach((item) => {
+            const divItem = document.createElement("div");
+            divItem.classList.add("li-item");
+
+            // 재고 확인 로직 (item.stock_count 사용)
+            let actionBtn = '';
+            if (item.stock_count > 0) {
+                // 문자열 ISBN 전달을 위해 따옴표('') 처리 주의
+                actionBtn = `<input type="button" class="loan_button" value="대여하기" 
+                             onclick="requestBorrow('${item.isbn}')" 
+                             style="cursor: pointer; background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px;">`;
+            } else {
+                actionBtn = `<span style="color: red; font-size: 14px;">대여불가</span>`;
+            }
+
+            divItem.innerHTML = `
+                <div class="b_isbn" style="width: 15%; overflow:hidden; text-overflow:ellipsis;">${item.isbn}</div>
+                <div class="b_title" style="width: 40%; text-align: left; padding-left: 10px;">${item.title}</div>
+                <div class="b_author" style="width: 20%;">${item.author}</div>
+                <div class="b_stock" style="width: 10%;">${item.stock_count}권</div>
+                <div class="b_action" style="width: 15%; display: flex; justify-content: center; align-items: center;">
+                    ${actionBtn}
+                </div>
+            `;
+            board.appendChild(divItem);
+        });
+
+        // 페이지네이션 버튼 생성
+        createPaginationButtons();
     }
 
-    try {
-      const response = await fetch("/loan/search_return", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ member_id: searchInput }),
-      });
-      const result = await response.json();
-      if (result.isFalse == 2) {
-        alert("정확한 ID값을 입력하세요");
-        return;
-      } else if (result.isFalse == 1) {
-        alert("반납할 책이 없습니다.");
-        return;
-      }
+    // ==========================================
+    // 3. 페이지네이션 버튼 생성 함수
+    // ==========================================
+    function createPaginationButtons() {
+        const totalPages = Math.ceil(books.length / itemsPerPage);
+        boardPage.innerHTML = ""; // 초기화
 
-      console.log(result);
-      returns = result.map((row) => ({
-        member_id: row.member_id,
-        b_num: row.b_num,
-        b_title: row.b_title,
-        s_date: row.s_date,
-        e_date: row.e_date,
-        b_extension: row.b_extension,
-      }));
-      //도서목록,공지사항목록 등 표시하는 방법과 같은 방법
-      result_return_div.innerHTML = `<div class="top">
-          <div class="b_num">책 번호</div>
-          <div class="b_title">책 제목</div>
-          <div class="s_date">대여일</div>
-          <div class="e_date">반납일</div>
-          <div class="del_btn"> 반납버튼</div>
-        </div>`;
+        if (totalPages === 0) return;
 
-      returns.forEach((item) => {
-        const divItem = document.createElement("div");
-        divItem.classList.add("li-item");
-        divItem.innerHTML = `
-          <div class="b_num" id="b_num_${item.b_num}">${item.b_num}</div>
-          <div class="member_id" id="id_${item.b_num}" style="display:none">${item.member_id}</div>
-          <div class="b_title" id="b_title_${item.b_num}">${item.b_title}</div>
-          <div class="s_date" id="s_date_${item.b_num}">${item.s_date}</div>
-          <div class="e_date" id="e_date_${item.b_num}">${item.e_date}</div>
-          <div class="del_btn" id="del_btn_${item.b_num}"><input type="button" class="del_button" onclick="return_book(${item.b_num})" value="반납"></div>
-        `;
-        result_return_div.appendChild(divItem);
-      });
-    } catch (error) {
-      console.error("서버오류:", error);
+        const createBtn = (text, onClick) => {
+            const btn = document.createElement("a");
+            btn.href = "#";
+            btn.className = "bt";
+            btn.textContent = text;
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                onClick();
+            });
+            return btn;
+        };
+
+        boardPage.appendChild(createBtn("<<", () => display_book_list(1)));
+        boardPage.appendChild(createBtn("<", () => {
+            if (currentPage > 1) display_book_list(currentPage - 1);
+        }));
+
+        const startPage = Math.floor((currentPage - 1) / pagesPerGroup) * pagesPerGroup + 1;
+        const endPage = Math.min(startPage + pagesPerGroup - 1, totalPages);
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement("a");
+            pageBtn.href = "#";
+            pageBtn.className = "num_p";
+            pageBtn.textContent = i;
+            if (i === currentPage) pageBtn.classList.add("on");
+            pageBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                display_book_list(i);
+            });
+            boardPage.appendChild(pageBtn);
+        }
+
+        boardPage.appendChild(createBtn(">", () => {
+            if (currentPage < totalPages) display_book_list(currentPage + 1);
+        }));
+        boardPage.appendChild(createBtn(">>", () => display_book_list(totalPages)));
     }
-  });
+
+    // ==========================================
+    // 4. 반납 검색 기능 (내 대여 목록 조회)
+    // ==========================================
+    return_search_btn.addEventListener("click", async function () {
+        
+        // '로그인된 세션'을 기준으로 조회
+        // views.py의 my_borrows 함수 호출
+        try {
+            const response = await fetch("http://127.0.0.1:8000/api/me/borrows/", {
+                method: "GET",
+                headers: { 
+                    "Content-Type": "application/json" 
+                },
+                credentials: "include" // 로그인 세션 전달
+            });
+            
+            const result = await response.json();
+
+            // 로그인 안 된 경우
+            if (response.status === 401) {
+                alert("로그인이 필요합니다.");
+                window.location.href = "Main.html";
+                return;
+            }
+
+            if (!response.ok) {
+                alert("목록을 불러오는데 실패했습니다.");
+                return;
+            }
+
+            // 결과 매핑 (views.py > my_borrows의 리턴값 구조 확인)
+            // 아직 반납하지 않은 책(return_date가 null인 것)만 필터링
+            const myBorrows = result.borrows.filter(item => item.return_date === null);
+
+            if (myBorrows.length === 0) {
+                alert("현재 대여 중인 도서가 없습니다.");
+                result_return_div.innerHTML = "";
+                return;
+            }
+
+            // 테이블 헤더 그리기
+            result_return_div.innerHTML = `
+                <div class="top">
+                    <div class="b_num" style="width:15%">책 번호</div>
+                    <div class="b_title" style="width:40%">책 제목</div>
+                    <div class="s_date" style="width:20%">대여일</div>
+                    <div class="e_date" style="width:15%">반납예정일</div>
+                    <div class="del_btn" style="width:10%">관리</div>
+                </div>`;
+
+            // 목록 그리기
+            myBorrows.forEach((item) => {
+                const divItem = document.createElement("div");
+                divItem.classList.add("li-item");
+                
+                // 연체 여부 시각적 표시 (오늘 날짜와 비교)
+                const today = new Date().toISOString().split('T')[0];
+                const isOverdue = item.due_date < today ? "color:red; font-weight:bold;" : "";
+
+                divItem.innerHTML = `
+                    <div class="b_num" style="width:15%">${item.book__book_manage_id}</div>
+                    <div class="b_title" style="width:40%">${item.book__isbn__title}</div>
+                    <div class="s_date" style="width:20%">${item.borrow_date}</div>
+                    <div class="e_date" style="width:15%; ${isOverdue}">${item.due_date}</div>
+                    <div class="del_btn" style="width:10%">
+                        <input type="button" class="del_button" 
+                               onclick="processReturn(${item.borrow_id})" 
+                               value="반납하기"
+                               style="cursor: pointer; background-color: #ff9800; color: white; border: none; padding: 5px 10px; border-radius: 4px;">
+                    </div>
+                `;
+                result_return_div.appendChild(divItem);
+            });
+
+        } catch (error) {
+            console.error("서버오류:", error);
+            alert("통신 중 오류가 발생했습니다.");
+        }
+    });
 });
 
-function navigateToPage() {
-  window.location.href = "Main.html";
-}
-  //페이지네이션 버튼생성코드
-  function createPaginationButtons() {
-    const totalPages = Math.ceil(books.length / itemsPerPage);
-    console.log(totalPages);
-    boardPage.querySelectorAll(".bt,.num_p").forEach((btn) => btn.remove());
+// ==========================================
+// 5. 전역 함수들 (대여, 반납, 페이지 이동)
+// ==========================================
 
-    const firstPageBtn = document.createElement("a");
-    firstPageBtn.href = "#";
-    firstPageBtn.className = "bt first";
-    firstPageBtn.textContent = "<<";
-    firstPageBtn.addEventListener("click", () => display_book_list(1));
-
-    const prevPageBtn = document.createElement("a");
-    prevPageBtn.href = "#";
-    prevPageBtn.className = "bt prev";
-    prevPageBtn.textContent = "<";
-    prevPageBtn.addEventListener("click", () => {
-      if (currentPage > 1) display_book_list(currentPage - 1);
-    });
-
-    const nextPageBtn = document.createElement("a");
-    nextPageBtn.href = "#";
-    nextPageBtn.className = "bt next";
-    nextPageBtn.textContent = ">";
-    nextPageBtn.addEventListener("click", () => {
-      if (currentPage < totalPages) display_book_list(currentPage + 1);
-    });
-
-    const lastPageBtn = document.createElement("a");
-    lastPageBtn.href = "#";
-    lastPageBtn.className = "bt last";
-    lastPageBtn.textContent = ">>";
-    lastPageBtn.addEventListener("click", () => display_book_list(totalPages));
-
-    const startPage = Math.floor((currentPage - 1) / pagesPerGroup) * pagesPerGroup + 1;
-    const endPage = Math.min(startPage + pagesPerGroup - 1, totalPages);
-
-    // 페이지 버튼 생성
-    for (let i = startPage; i <= endPage; i++) {
-      const pageBtn = document.createElement("a");
-      pageBtn.href = "#";
-      pageBtn.className = "num_p";
-      pageBtn.textContent = i;
-      pageBtn.dataset.page = i;
-      pageBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        display_book_list(i);
-      });
-      if (i === currentPage) {
-        pageBtn.classList.add("on");
-      }
-      boardPage.appendChild(pageBtn);
+// 대여 요청 함수 (views.py: borrow_books 대응)
+async function requestBorrow(isbn) {
+    if (!confirm("이 책을 대여하시겠습니까?")) {
+        return;
     }
-    // 이전 페이지, 다음 페이지, 첫 페이지, 마지막 페이지 버튼을 추가합니다.
-    boardPage.prepend(firstPageBtn, prevPageBtn);
-    boardPage.append(nextPageBtn, lastPageBtn);
-  }
+
+    // 백엔드는 'isbns' 라는 키를 기다리고 있음
+    const data = {
+        isbns: [isbn] 
+    };
+
+    // 쿠키에서 CSRF 토큰 가져오기
+    const csrftoken = getCookie('csrftoken');
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/borrow/", { 
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken, // CSRF 토큰 전달(POST 요청에 필요)
+            },
+            // 로그인 쿠키(sessionid)를 백엔드로 같이 보내주는 옵션
+            credentials: "include", 
+            body: JSON.stringify(data),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("대여 성공!\n" + result.message);
+            // 목록 갱신
+            document.getElementById("book_search_btn").click(); 
+        } else {
+            console.error("서버 에러 응답:", result);
+            
+            if (response.status === 401) {
+                alert("로그인이 필요한 서비스입니다.");
+                window.location.href = "Main.html"; // 로그인 창으로 튕겨내기
+            } else {
+                alert("대여 실패: " + (result.error || "알 수 없는 오류"));
+            }
+        }
+
+    } catch (error) {
+        console.error("통신 오류:", error);
+        alert("서버와 통신 중 문제가 발생했습니다.");
+    }
+}
+
+// 반납 처리 함수
+async function processReturn(borrowId) {
+    if(!confirm("이 도서를 반납하시겠습니까?")) {
+        return;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    try {
+        // views.py의 return_book 호출
+        const response = await fetch("http://127.0.0.1:8000/api/return/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken,
+            },
+            credentials: "include",
+            body: JSON.stringify({ borrow_id: borrowId }) // borrow_id 전송
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            let msg = result.message;
+            if (result.is_overdue) {
+                msg += "\n(주의: 연체되어 대여 정지 패널티가 부과되었습니다.)";
+            }
+            alert(msg);
+            
+            // 목록 갱신을 위해 검색 버튼 트리거
+            document.getElementById("return_search_btn").click();
+        } else {
+            alert("반납 실패: " + (result.error || "알 수 없는 오류"));
+        }
+    } catch (error) {
+        console.error("반납 오류:", error);
+        alert("서버 통신 중 오류가 발생했습니다.");
+    }
+}
+
+function navigateToPage() {
+    window.location.href = "Main.html";
+}
+
+async function logout() {
+    // 1. 서버에 로그아웃 요청 보내기
+    try {
+        const csrftoken = getCookie('csrftoken'); // 상단에 정의된 getCookie 함수 사용
+
+        const response = await fetch("/api/logout/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken, // CSRF 토큰 전달(POST 요청에 필요)
+            },
+            credentials: "include", // 세션 쿠키를 서버로 보내서 누구를 로그아웃할지 알려줌
+        });
+
+        // 2. 서버 응답 처리
+        if (response.ok) {
+            alert("로그아웃 되었습니다.");
+        } else {
+            console.error("로그아웃 실패");
+        }
+
+    } catch (error) {
+        console.error("통신 오류:", error);
+    } finally {
+        // 3. 성공 여부와 관계없이 화면 이동 및 로컬 정보 삭제
+        localStorage.removeItem("authToken"); // 토큰을 썼다면 삭제
+        window.location.href = "Main.html";   // 메인 화면으로 이동
+    }
+}
+// 전역 스코프 할당 (HTML onclick에서 접근 가능하도록)
+window.requestBorrow = requestBorrow;
+window.processReturn = processReturn;
+window.navigateToPage = navigateToPage;
+window.logout = logout;
