@@ -363,7 +363,7 @@ function navigateToPage() {
 }
 
 async function logout() {
-    // 1. 서버에 로그아웃 요청 보내기
+    // 1. 서버에 로그아웃 요청 보내기 
     try {
         const csrftoken = getCookie('csrftoken'); // 상단에 정의된 getCookie 함수 사용
 
