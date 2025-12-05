@@ -48,8 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
         category: row.category__category_name,
         amount: row.stock_count !== undefined ? row.stock_count : 0,
         rating: row.avg_rating ? parseFloat(row.avg_rating).toFixed(1) : "0.0",
-        /* 서버에서 제공하지 않는 데이터는 기본값으로 설정 */
-        info: "상세 설명이 없습니다.",
         image_url: row.image_url
       }));
 

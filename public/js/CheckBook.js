@@ -28,6 +28,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const return_search_btn = document.getElementById("return_search_btn");
     const result_return_div = document.getElementById("result_return_div");
 
+    // 관리자 메뉴 표시 여부 결정
+    checkAdminAuthority();
+
     // ==============================================
     // 1. 도서 검색 기능 (Main.js와 동일한 로직 적용)
     // ==============================================
@@ -266,7 +269,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ==========================================
-// 5. 전역 함수들 (대여, 반납, 페이지 이동)
+// 5. 전역 함수들 (대여, 반납, 페이지 이동, 관리자 권한 확인)
 // ==========================================
 
 // 대여 요청 함수 (views.py: borrow_books 대응)
@@ -360,6 +363,35 @@ async function processReturn(borrowId) {
 
 function navigateToPage() {
     window.location.href = "Main.html";  
+}
+
+// 관리자 권한 확인 함수
+async function checkAdminAuthority() {
+    try {
+        // 내 정보 조회 API 호출 (로그인 쿠키 포함)
+        const response = await fetch("http://127.0.0.1:8000/api/me/", {
+            method: "GET",
+            headers: { 
+                "Content-Type": "application/json" 
+            },
+            credentials: "include" // 세션 쿠키 전달
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            
+            // views.py에서 보낸 is_staff가 True인지 확인
+            if (data.is_staff === true) {
+                // 관리자라면 숨겨뒀던 메뉴바를 보이게 설정
+                const managerMenu = document.getElementById("Menu-bar_Manager");
+                if (managerMenu) {
+                    managerMenu.style.display = "block";
+                }
+            }
+        }
+    } catch (error) {
+        console.error("사용자 권한 확인 중 오류 발생:", error);
+    }
 }
 
 async function logout() {
