@@ -55,30 +55,67 @@
       </div>
     </div>
     <section id="book-add-modal-wrap" style="display: none">
-      <div class="board-container">
-        <div id="board-div">
-          <div class="book-title">
-            <input id="book_title" type="text" placeholder="제목을 입력해주세요" />
-            <p>No.</p>
-            <p id="book_num"></p>
-          </div>
-          <div class="input_wrap">
-            <input id="book_writer" type="text" placeholder="저자을 입력해주세요" />
-            <input id="book_publish" type="text" placeholder="출판사를 입력해주세요" />
-          </div>
-          <div class="input_wrap">
-            <input id="book_amount" type="text" placeholder="책 수량을 입력해주세요" />
-          </div>
-          <textarea id="subject" class="subject-area" placeholder="책 내용" required></textarea>
-          <div class="btn-wrap">
-            <input id="regist-book" class="modal-btn" type="button" value="등록" />
-            <input id="fix-book" class="modal-btn" type="button" value="수정" style="display: none" />
-            <input id="exit-modal" class="modal-btn" type="button" value="취소" onclick="ModalVisible(false,false)" />
-          </div>
-          <div class="btn-wrap">
-            <input id="delete-book" class="modal-btn" type="button" value="삭제" />
-          </div>
+    <div class="board-container">
+      <div id="board-div">
+        <div class="book-title">
+          <input id="book_title" type="text" placeholder="도서 제목 (필수)" />
+          <p>No.</p>
+          <p id="book_num">-</p> </div>
+
+        <div class="input_wrap">
+          <input id="book_isbn" type="text" placeholder="ISBN (필수)" />
+          <select id="book_category">
+            <option value="" disabled selected>카테고리 선택 (필수)</option>
+          </select>
         </div>
+
+        <div class="input_wrap">
+          <input id="book_writer" type="text" placeholder="저자 (선택)" />
+          <input id="book_publish" type="text" placeholder="출판사 (필수)" />
+        </div>
+
+        <div class="input_wrap">
+          <input id="book_amount" type="number" min="1" placeholder="입고 수량 (기본 1권)" />
+        </div>
+        
+        <input id="book_image" type="text" class="subject-area" placeholder="표지 이미지 URL (http://...)" style="height: 40px; margin-bottom: 15px;" />
+
+        <!-- 실물 도서 목록 -->
+        <div id="copy_list_area" style="display: none; margin-bottom: 15px; border: 1px solid #ccc; padding: 10px; border-radius: 5px; background-color: #fff;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h4 style="margin: 0;">실물 도서 목록</h4>
+                
+                <div id="add_copy_div">
+                    <input type="number" id="add_copy_amount" placeholder="수량" style="width: 60px; height: 30px; padding: 5px; font-size: 14px;" min="1" value="1">
+                    <button id="btn_add_copy" onclick="addBookCopies()" style="height: 30px; padding: 0 10px; cursor: pointer; background-color: #4CAF50; color: white; border: none; border-radius: 4px;">추가</button>
+                </div>
+            </div>
+
+            <div style="max-height: 150px; overflow-y: auto;">
+                <table style="width: 100%; text-align: center; font-size: 14px; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid #ddd; background-color: #f9f9f9;">
+                            <th style="padding: 8px;">관리번호</th>
+                            <th style="padding: 8px;">상태</th>
+                            <th style="padding: 8px;">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="copy_list_tbody">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="btn-wrap">
+          <input id="regist-book" class="modal-btn" type="button" value="등록" />
+          <input id="fix-book" class="modal-btn" type="button" value="수정" style="display: none" />
+          <input id="exit-modal" class="modal-btn" type="button" value="취소" onclick="ModalVisible(false,false)" />
+        </div>
+        <div class="btn-wrap">
+          <input id="delete-book" class="modal-btn" type="button" value="삭제" />
+        </div>
+      </div>
     <script>
       function navigateToPage() {
         window.location.href = "Main.html";
@@ -90,37 +127,7 @@
       function refresh() {
         window.location.href = "bookDataEdit.html";
       }
-      function book_modal(num) {
-        document.getElementById("book-add-modal-wrap").style.display = "block";
-        document.getElementById("book_title").value = document.getElementById(`b_title_${num}`).textContent;
-        document.getElementById("book_writer").value = document.getElementById(`b_writer_${num}`).textContent;
-        document.getElementById("book_publish").value = document.getElementById(`b_publish_${num}`).textContent;
-        document.getElementById("subject").value = document.getElementById(`b_info_${num}`).textContent;
-        document.getElementById("book_amount").value = document.getElementById(`b_amount_${num}`).textContent;
-        document.getElementById("book_num").textContent = document.getElementById(`b_num_${num}`).textContent;;
-        document.getElementById("regist-book").style.display = "none";
-        document.getElementById("fix-book").style.display = "block";
-      }
-      function ModalVisible(state, isInit) {
-
-        if (isInit) {
-        document.getElementById("book-add-modal-wrap").style.display = "block";
-        document.getElementById("book_title").value = "";
-        document.getElementById("book_writer").value = "";
-        document.getElementById("book_publish").value = "";
-        document.getElementById("subject").value ="";
-        document.getElementById("book_amount").value = "";
-
-        document.getElementById("regist-book").style.display = "block";
-          document.getElementById("delete-book").style.display = "none";
-          document.getElementById("fix-book").style.display = "none";
-        }
-        if (state) {
-          document.getElementById("book-add-modal-wrap").style.display = "block";
-        } else {
-          document.getElementById("book-add-modal-wrap").style.display = "none";
-        }
-      }
+      // book_modal, ModalVisiable 함수는 bookDataEdit.js에 작성되어 있습니다.
     </script>
     <script src="./js/bookDataEdit.js"></script>
   </body>

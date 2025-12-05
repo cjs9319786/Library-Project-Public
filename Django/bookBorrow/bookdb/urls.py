@@ -75,6 +75,12 @@ urlpatterns = [
     #도서 정보 삭제 (BookInfo 삭제 시 실물 Book도 자동 삭제)
     path('admin/books/delete/<str:isbn>/', views.admin_delete_book, name='admin_delete_book'),
 
+    #특정 도서의 실물 책 목록 조회 (***추가***)
+    path('admin/books/<str:isbn>/copies/', views.admin_get_book_copies),
+
+    #특정 도서의 실물 책 상세 정보 조회 (***추가***)
+    path('admin/books/<str:isbn>/add-copies/', views.admin_add_book_copies, name='admin_add_book_copies'),
+
     #개별 실물 책 상태 수정 (대여가능, 대여중, 대여 불가)
     path('admin/book-copy/update/<int:book_manage_id>/', views.admin_update_book_copy, name='admin_update_book_copy'),
 

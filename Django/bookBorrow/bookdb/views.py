@@ -227,7 +227,8 @@ def my_info(request):
         "phone_number": user.phone_number,
         "birth_date": user.birth_date,
         "status": user.status,
-        "overdue_end_date": user.overdue_end_date
+        "overdue_end_date": user.overdue_end_date, 
+        "is_staff": user.is_staff, # 관리자 여부(회원 관리/도서 편집 활성화 여부)
     }, status=200)
 
 #내 대여/반납 내역 (마이페이지)
@@ -1302,6 +1303,72 @@ def admin_update_book_copy(request, book_manage_id):
         return JsonResponse({"error": "존재하지 않는 실물 도서입니다."}, status=404)
     except Exception as e:
         return JsonResponse({"error": f"상태 수정 중 오류: {str(e)}"}, status=500)
+
+# ************** 추가 ****************
+# 특정 도서(ISBN)의 실물 책 목록 조회 (관리자용)
+def admin_get_book_copies(request, isbn):
+    if request.method != 'GET':
+        return JsonResponse({"error": "GET 요청만 허용됩니다."}, status=405)
+
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
+
+    try:
+        # 해당 ISBN을 가진 모든 실물 책 조회
+        copies = Book.objects.filter(isbn=isbn).order_by('book_manage_id')
+        
+        copies_list = []
+        for copy in copies:
+            copies_list.append({
+                'book_manage_id': copy.book_manage_id,
+                'status': copy.status,
+                'status_display': copy.get_status_display() # "대여가능", "대여중" 등 텍스트
+            })
+            
+        return JsonResponse({'copies': copies_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": f"목록 조회 중 오류: {str(e)}"}, status=500)
+    
+# ************** 추가 ****************
+# 기존 도서에 실물 책(Copy) 추가 입고
+@csrf_exempt
+def admin_add_book_copies(request, isbn):
+    if request.method != 'POST':
+        return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
+
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
+
+    try:
+        book_info = BookInfo.objects.get(isbn=isbn)
+        data = json.loads(request.body)
+        
+        # 추가할 수량 (기본 1권)
+        amount = int(data.get('amount', 1))
+        
+        if amount < 1:
+             return JsonResponse({"error": "1권 이상 입력해야 합니다."}, status=400)
+
+        created_ids = []
+        for _ in range(amount):
+            new_copy = Book.objects.create(
+                isbn=book_info,
+                status=Book.Status.AVAILABLE # 기본 대여 가능 상태로 생성
+            )
+            created_ids.append(new_copy.book_manage_id)
+
+        return JsonResponse({
+            "message": f"{amount}권이 추가 입고되었습니다.",
+            "added_ids": created_ids
+        }, status=201)
+
+    except BookInfo.DoesNotExist:
+        return JsonResponse({"error": "존재하지 않는 도서(ISBN)입니다."}, status=404)
+    except (ValueError, TypeError):
+         return JsonResponse({"error": "수량은 숫자여야 합니다."}, status=400)
+    except Exception as e:
+        return JsonResponse({"error": f"입고 처리 중 오류: {str(e)}"}, status=500)
 
 
 #카테고리 관리 (조회 및 추가)
