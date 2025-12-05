@@ -37,6 +37,7 @@ async function fetchCategoriesList() {
         if (response.ok) {
             const result = await response.json();
             allCategories = result.categories;
+            allCategories.sort((a, b) => a.category_id - b.category_id); // 받아온 데이터를 ID 기준 오름차순 정렬
             renderCategoryPage(1);
         } else {
             alert("목록을 불러오지 못했습니다.");
