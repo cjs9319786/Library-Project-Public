@@ -1209,6 +1209,8 @@ def admin_update_book(request, isbn):
 
         if 'title' in data: book_info.title = data['title']
         if 'author' in data: book_info.author = data['author']
+        # 추가 -> 이미지 URL 변경
+        if 'image_url' in data: book_info.image_url = data['image_url']
         
         #카테고리 변경
         if 'category_id' in data:
