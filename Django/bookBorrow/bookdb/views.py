@@ -7,7 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.hashers import make_password
 from django.db import IntegrityError, transaction
 from .models import Member, BookInfo, Publisher, Category, Book, Borrow, Review, Policy
-from django.db.models import Q, Count, Case, When, BooleanField
+from django.db.models import Q, Count, Case, When, BooleanField, Avg
 from datetime import date, timedelta
 from django.core.exceptions import ValidationError
 from django.contrib.auth import logout
@@ -343,6 +343,11 @@ def book_detail(request, isbn): # URL로부터 isbn 값을 받음
             'category', 'publisher'
         ).get(isbn=isbn)
 
+        # 도서의 리뷰 평균 평점 계산
+        # result = {'rating__avg': 4.5} 형태로 반환됨. 리뷰 없으면 None
+        avg_data = Review.objects.filter(isbn=book).aggregate(Avg('rating'))
+        avg_rating = avg_data['rating__avg']
+
         #(반환) 책 상세 정보를 JSON으로 반환
         return JsonResponse({
             'isbn': book.isbn,
@@ -350,7 +355,8 @@ def book_detail(request, isbn): # URL로부터 isbn 값을 받음
             'author': book.author,
             'publisher_name': book.publisher.publisher_name if book.publisher else None,
             'category_name': book.category.category_name if book.category else None,
-            'image_url': book.image_url
+            'image_url': book.image_url,
+            'rating': round(avg_rating, 1) if avg_rating else 0.0 # 소수점 1자리로 반올림하여 반환
         }, status=200)
 
     except BookInfo.DoesNotExist:
@@ -791,6 +797,53 @@ def check_email_duplicate(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+# 사용자의 상태 체크(대여 여부, 리뷰 여부)
+@csrf_exempt
+def check_user_book_status(request, isbn):
+    """
+    특정 도서에 대한 사용자의 상태(대여 여부, 리뷰 작성 여부)를 확인
+    URL 예시: /api/books/<isbn>/status/
+    """
+    if request.method != 'GET':
+        return JsonResponse({"error": "GET 요청만 허용됩니다."}, status=405)
+
+    # 로그인 확인
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            "is_authenticated": False,
+            "has_borrowed": False,
+            "my_review": None
+        }, status=200)
+
+    try:
+        user = request.user
+        
+        # 1. 대여 기록 확인 (Borrow 테이블에서 해당 사용자와 ISBN으로 검색)
+        # 빌린 기록이 있으면(과거 포함) 쓸 수 있게 설정
+        has_borrowed = Borrow.objects.filter(member=user, book__isbn__isbn=isbn).exists()
+
+        # 2. 내 리뷰 확인
+        my_review = Review.objects.filter(member=user, isbn__isbn=isbn).first()
+        
+        review_data = None
+        if my_review:
+            review_data = {
+                "review_id": my_review.review_id,
+                "rating": my_review.rating,
+                "content": my_review.content
+            }
+
+        return JsonResponse({
+            "is_authenticated": True,
+            "has_borrowed": has_borrowed,
+            "my_review": review_data
+        }, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": f"상태 확인 중 오류: {str(e)}"}, status=500)
+    
     
 #-----------------------관리자 기능-----------------------------------
 

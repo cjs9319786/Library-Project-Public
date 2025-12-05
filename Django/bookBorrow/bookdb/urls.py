@@ -36,12 +36,15 @@ urlpatterns = [
 
     path('reviews/update/<int:review_id>/', views.update_review, name='update_review'),
 
-    path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
-
     # [추가] 중복 체크용 URL
     path('check-id/', views.check_id_duplicate, name='check_id_duplicate'),
     
     path('check-email/', views.check_email_duplicate, name='check_email_duplicate'),
+
+    path('check-email/', views.check_email_duplicate, name='check_email_duplicate'),
+
+    # [추가] 사용자의 특정 도서 대여 상태 확인
+    path('books/<str:isbn>/status/', views.check_user_book_status, name='check_user_book_status'),
 
     #-----------------------관리자 기능-----------------------------------
     #전체 회원 목록 조회 (검색 포함)

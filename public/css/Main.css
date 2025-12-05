@@ -150,9 +150,11 @@ body {
   width: 700px;
   border-radius: 10px;
   margin-left: 45px;
+  max-height: 85vh;
   float: right;
   border: 2px solid black;
   height: 850px;
+  overflow-y: auto;
 }
 
 .Detail_item {
