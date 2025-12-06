@@ -98,6 +98,12 @@ def login_user(request):
         #login 함수로 세션을 생성하고 쿠키를 브라우저에 전송
         login(request, user)
         
+        # 연체 기간이 지났는지 확인하고 상태 복구
+        if user.status == "대여정지" and user.overdue_end_date and date.today() > user.overdue_end_date:
+            user.status = "정상"
+            user.overdue_end_date = None
+            user.save()
+
         return JsonResponse({
             "message": "로그인 성공!",
             "user": {
@@ -431,6 +437,12 @@ def borrow_books(request):
         data = json.loads(request.body)
         isbn_list = data['isbns'] #대여할 책들의 ISBN 리스트
         member = request.user
+
+        # 연체 기간이 지났는지 확인하고 상태 복구
+        if member.status == "대여정지" and member.overdue_end_date and date.today() > member.overdue_end_date:
+            member.status = "정상"
+            member.overdue_end_date = None
+            member.save()
 
         #회원 상태(status) 확인
         if member.status == "대여정지":
