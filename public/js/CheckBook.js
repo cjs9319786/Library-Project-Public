@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         try {
             const endUrl = `http://127.0.0.1:8000/api/books/?q=${encodeURIComponent(searchParams)}`;
-            
+
             const response = await fetch(endUrl, {
                 method: "GET",
                 headers: {
@@ -82,9 +82,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>`;
 
         if (currentItems.length === 0) {
-             board.innerHTML += `<div style="padding:20px; text-align:center;">검색 결과가 없습니다.</div>`;
-             boardPage.innerHTML = "";
-             return;
+            board.innerHTML += `<div style="padding:20px; text-align:center;">검색 결과가 없습니다.</div>`;
+            boardPage.innerHTML = "";
+            return;
         }
 
         currentItems.forEach((item) => {
@@ -168,13 +168,13 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch("http://127.0.0.1:8000/api/me/borrows/", {
                 method: "GET",
-                headers: { 
-                    "Content-Type": "application/json", 
-                    
+                headers: {
+                    "Content-Type": "application/json",
+
                 },
                 credentials: "include"
             });
-            
+
             const result = await response.json();
 
             // 로그인 안 된 경우
@@ -213,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
             myBorrows.forEach((item) => {
                 const divItem = document.createElement("div");
                 divItem.classList.add("li-item");
-                
+
                 // 연체 여부 시각적 표시 (오늘 날짜와 비교)
                 const today = new Date().toISOString().split('T')[0];
                 const isOverdue = item.due_date < today ? "color:red; font-weight:bold;" : "";
@@ -248,14 +248,14 @@ async function requestBorrow(isbn) {
 
     // 백엔드는 'isbns' 라는 키를 기다리고 있음
     const data = {
-        isbns: [isbn] 
+        isbns: [isbn]
     };
 
     // 쿠키에서 CSRF 토큰 가져오기
     //const csrftoken = getCookie('csrftoken');
 
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/borrow/", { 
+        const response = await fetch("http://127.0.0.1:8000/api/borrow/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -271,10 +271,10 @@ async function requestBorrow(isbn) {
         if (response.ok) {
             alert("대여 성공!\n" + result.message);
             // 목록 갱신
-            document.getElementById("book_search_btn").click(); 
+            document.getElementById("book_search_btn").click();
         } else {
             console.error("서버 에러 응답:", result);
-            
+
             if (response.status === 401) {
                 alert("로그인이 필요한 서비스입니다.");
                 window.location.href = "Main.html"; // 로그인 창으로 튕겨내기
@@ -291,7 +291,7 @@ async function requestBorrow(isbn) {
 
 // 반납 처리 함수
 async function processReturn(borrowId) {
-    if(!confirm("이 도서를 반납하시겠습니까?")) {
+    if (!confirm("이 도서를 반납하시겠습니까?")) {
         return;
     }
 
@@ -317,7 +317,7 @@ async function processReturn(borrowId) {
                 msg += "\n(주의: 연체되어 대여 정지 패널티가 부과되었습니다.)";
             }
             alert(msg);
-            
+
             // 목록 갱신을 위해 검색 버튼 트리거
             document.getElementById("return_search_btn").click();
         } else {
@@ -325,12 +325,12 @@ async function processReturn(borrowId) {
         }
     } catch (error) {
         console.error("반납 오류:", error);
-        alert("서버 통신 중 오류가 발생했습니다."); 
+        alert("서버 통신 중 오류가 발생했습니다.");
     }
 }
 
 function navigateToPage() {
-    window.location.href = "Main.html";  
+    window.location.href = "Main.html";
 }
 
 // 관리자 권한 확인 함수
@@ -339,23 +339,32 @@ async function checkAdminAuthority() {
         // 내 정보 조회 API 호출 (로그인 쿠키 포함)
         const response = await fetch("http://127.0.0.1:8000/api/me/", {
             method: "GET",
-            headers: { 
-                "Content-Type": "application/json",              
-            }, 
-            credentials: "include",            
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
         });
 
         if (response.ok) {
             const data = await response.json();
-            
+
+            const managerMenu = document.getElementById("Menu-bar_Manager");
+            const memberMenu = document.getElementById("Menu-bar_Member");
+
             // views.py에서 보낸 is_staff가 True인지 확인
             if (data.is_staff === true) {
-                // 관리자라면 숨겨뒀던 메뉴바를 보이게 설정
-                const managerMenu = document.getElementById("Menu-bar_Manager");
-                if (managerMenu) {
-                    managerMenu.style.display = "block";
-                }
+                // [관리자일 때]
+                if (managerMenu) managerMenu.style.display = "block"; // 관리자 메뉴 보이기
+                if (memberMenu) memberMenu.style.display = "none";    // 회원 메뉴 숨기기
+            } else {
+                // [일반 회원일 때]
+                if (managerMenu) managerMenu.style.display = "none";  // 관리자 메뉴 숨기기
+                if (memberMenu) memberMenu.style.display = "block";   // 회원 메뉴 보이기
             }
+        } else {
+            // 로그인 상태가 아닐 경우 (API 호출 실패 등)
+            // 필요하다면 로그인 페이지로 보내거나 메뉴를 다 숨길 수 있습니다.
+            console.log("로그인 정보 확인 실패");
         }
     } catch (error) {
         console.error("사용자 권한 확인 중 오류 발생:", error);
