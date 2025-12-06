@@ -57,7 +57,7 @@ async function loadMyBorrows() {
             // 연장 버튼 (반납 안했고, 연장 안했고, 연체 안했으면 표시)
             let btnHtml = "";
             if (!item.return_date && !item.is_extended && !isOverdue) {
-                btnHtml = `<button onclick="extendBook(${item.borrow_id})" style="font-size:12px;">연장</button>`;
+                btnHtml = `<button onclick="extendBook(${item.borrow_id})" style="font-size:12px; width:50px; height:25px; background-color:#4CAF50; color:white; border:none; border-radius:4px;">연장</button>`;
             }
 
             const row = document.createElement("div");
