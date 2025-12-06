@@ -109,6 +109,9 @@ urlpatterns = [
     #출판사 삭제
     path('admin/publishers/delete/<int:publisher_id>/', views.admin_delete_publisher, name='admin_delete_publisher'),
 
+    #리뷰 관리 (조회)
+    path('admin/reviews/', views.admin_list_reviews, name='admin_list_reviews'),
+
     #리뷰 삭제
     path('admin/reviews/delete/<int:review_id>/', views.admin_delete_review, name='admin_delete_review'),
 

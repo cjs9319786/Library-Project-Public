@@ -1613,6 +1613,43 @@ def admin_delete_publisher(request, publisher_id):
             "error": "이 출판사에 등록된 도서가 있어 삭제할 수 없습니다. 해당 도서들의 출판사 정보를 먼저 변경해주세요."
         }, status=400)
     
+# [추가] 관리자용 전체 리뷰 목록 조회 (단순 조회)
+def admin_list_reviews(request):
+    if request.method != 'GET':
+        return JsonResponse({"error": "GET 요청만 허용됩니다."}, status=405)
+
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
+
+    try:
+        # 검색어(q) 처리만 남겨둠
+        query = request.GET.get('q', '')
+        
+        # 기본적으로 최신순으로 가져오기 (DB에서 가져올 때 순서)
+        reviews = Review.objects.select_related('member', 'isbn').order_by('-created_at')
+
+        if query:
+            reviews = reviews.filter(
+                Q(content__icontains=query) |
+                Q(member__login_id__icontains=query) |
+                Q(isbn__title__icontains=query)
+            )
+
+        reviews_list = list(reviews.values(
+            'review_id',
+            'rating',
+            'content',
+            'created_at',
+            'member__login_id',
+            'isbn__title',
+            'isbn__isbn'
+        ))
+
+        return JsonResponse({'reviews': reviews_list}, status=200)
+
+    except Exception as e:
+        return JsonResponse({"error": f"리뷰 목록 조회 중 오류: {str(e)}"}, status=500)
+
 #리뷰 삭제
 @csrf_exempt
 def admin_delete_review(request, review_id):
