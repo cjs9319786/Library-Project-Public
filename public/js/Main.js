@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const searchParams = search_value.toString();
       // 엔드포인트: views.py의 search_books와 연결됨
       const endUrl = `http://127.0.0.1:8000/api/books/?q=${searchParams}`;
-      
+
       const response = await fetch(endUrl, {
         method: "GET",
         headers: {
@@ -81,14 +81,14 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>`;
 
     if (currentItems.length === 0) {
-        board.innerHTML += `<div class="li-item" style="justify-content:center; padding:20px;">검색 결과가 없습니다.</div>`;
-        return;
+      board.innerHTML += `<div class="li-item" style="justify-content:center; padding:20px;">검색 결과가 없습니다.</div>`;
+      return;
     }
 
     currentItems.forEach((item) => {
       const divItem = document.createElement("div");
       divItem.classList.add("li-item");
-      
+
       // 제목 클릭 시 display_Detail 함수에 ISBN(문자열)을 전달
       divItem.innerHTML = `
         <div class="b_num" id="b_num_${item.isbn}" style="display:none">${item.isbn}</div>
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
       board.appendChild(divItem);
     });
-    
+
     createPaginationButtons();
   }
 
@@ -115,20 +115,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (totalPages === 0) return;
 
     const createBtn = (cls, text, onClick) => {
-        const btn = document.createElement("a");
-        btn.href = "#";
-        btn.className = cls;
-        btn.textContent = text;
-        btn.addEventListener("click", (e) => {
-            e.preventDefault();
-            onClick();
-        });
-        return btn;
+      const btn = document.createElement("a");
+      btn.href = "#";
+      btn.className = cls;
+      btn.textContent = text;
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        onClick();
+      });
+      return btn;
     };
 
     boardPage.prepend(createBtn("bt prev", "<", () => { if (currentPage > 1) display_book_list(currentPage - 1); }));
     boardPage.prepend(createBtn("bt first", "<<", () => display_book_list(1)));
-    
+
     boardPage.append(createBtn("bt next", ">", () => { if (currentPage < totalPages) display_book_list(currentPage + 1); }));
     boardPage.append(createBtn("bt last", ">>", () => display_book_list(totalPages)));
 
@@ -153,203 +153,244 @@ function navigateToPage() {
 // [전역 변수 추가] 현재 보고 있는 책의 ISBN과 내 리뷰 ID 저장용
 let currentIsbn = null;
 let myReviewId = null;
+let myReviewData = null;
 
 // 상세 정보 보여주기 (수정됨)
 async function display_Detail(isbn) {
-  currentIsbn = isbn; // 현재 ISBN 저장
+  currentIsbn = isbn; // 현재 ISBN 전역 변수에 저장
   myReviewId = null;  // 리뷰 ID 초기화
+  myReviewData = null; // 내 리뷰 데이터 초기화
 
-  const selectedBook = booksArr.find(book => String(book.isbn) === String(isbn));
-  if (!selectedBook) { alert("오류"); return; }
-
+  // 모달창 띄우기 (데이터 로딩 전 미리 띄움)
   const modal = document.getElementById("modal_overlay");
   modal.style.display = "flex";
+  document.getElementById("p_title").textContent = "로딩 중...";
 
-  // 기본 정보 채우기
-  document.getElementById("p_title").textContent = selectedBook.title;
+  try {
+    // 서버에 상세 정보 요청 (views.py의 book_detail 호출)
+    const response = await fetch(`http://127.0.0.1:8000/api/books/${isbn}/`);
 
-  // 평점(별) 그리기 로직
-  const ratingVal = parseFloat(selectedBook.rating);
-  const fullStars = Math.floor(ratingVal);
-  const emptyStars = 5 - fullStars;
-  // 별 문자열 만들기
-  const starStr = "⭐".repeat(fullStars) + "☆".repeat(emptyStars);
-  
-  document.getElementById("p_stars").textContent = starStr;
-  document.getElementById("p_rating_value").textContent = `(${selectedBook.rating})`;
-
-  document.getElementById("p_writer").textContent = selectedBook.author;
-  document.getElementById("p_publish").textContent = selectedBook.publisher;
-  document.getElementById("p_info").textContent = selectedBook.info;
-  document.getElementById("p_num").textContent = selectedBook.isbn;
-  document.getElementById("p_amount").textContent = selectedBook.amount;
-  
-  // 이미지 처리
-  const imageElement = document.getElementById("Detail_image");
-  if (imageElement) {
-      // 이미지 URL이 있고 비어있지 않다면 이미지 태그 생성
-      if (selectedBook.image_url && selectedBook.image_url.trim() !== "") {
-          imageElement.innerHTML = `
-            <img src="${selectedBook.image_url}"
-                 width="50"
-                 height="100"  
-                 alt="${selectedBook.title}" 
-                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 5px;">
-          `;
-      } else {
-          // 이미지가 없으면 기존 회색 박스 유지
-          imageElement.innerHTML = `
-            <div style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center; color:#888;">
-                이미지 없음
-            </div>`;
-      }
-  }
-
-  // 리뷰 관련 UI 초기화 및 데이터 로드
-  closeReviewForm();                                            
-  document.getElementById("my_review_actions").innerHTML = "";  
-  await loadMyReviewStatus(isbn);                              
-  await loadAllReviews(isbn);                                  
-}
-
-// 내 대여/리뷰 상태 확인 및 버튼 표시 
-async function loadMyReviewStatus(isbn) {
-  const actionDiv = document.getElementById("my_review_actions");
-  const login_status = await logincheck("review");
-  if(login_status == true){
-    try {
-        const response = await fetch(`http://127.0.0.1:8000/api/books/${isbn}/status/`, {
-            method: "GET",
-            credentials: 'include',
-        });
-        
-        const data = await response.json();
-        actionDiv.innerHTML = ""; // 초기화
-        if (data.my_review) {
-            // 이미 리뷰를 쓴 경우 -> 수정/삭제 버튼 노출
-            myReviewId = data.my_review.review_id; // ID 저장
-            actionDiv.innerHTML = `
-                <span style="color:blue; font-weight:bold;">내가 쓴 리뷰가 있습니다.</span>
-                <button onclick="openReviewForm('edit', '${data.my_review.rating}', '${data.my_review.content}')">수정</button>
-                <button onclick="deleteReview()">삭제</button>
-            `;
-        } else if (data.has_borrowed) {
-            // 리뷰는 없지만 책을 빌린 적이 있는 경우 -> 등록 버튼 노출
-            actionDiv.innerHTML = `
-                <button onclick="openReviewForm('create')" style="background-color:green; color:white; padding:5px 10px; border-radius:5px;">리뷰 등록하기</button>
-            `;
-        } else {
-            // 빌린 적도 없는 경우
-            actionDiv.innerHTML = "<p style='color:gray; font-size:14px;'>도서를 대여한 회원만 리뷰를 작성할 수 있습니다.</p>";
-        }
-    } catch (error) {
-        console.error("상태 확인 실패:", error);
+    if (!response.ok) {
+      throw new Error("상세 정보를 불러오는데 실패했습니다.");
     }
-  }else{
-    actionDiv.innerHTML = "<p style='color:gray; font-size:14px;'>로그인 후 리뷰를 작성할 수 있습니다.</p>"; 
+    // 서버에서 받은 최신 데이터 (평점 포함)
+    const bookData = await response.json();
+
+    // 받아온 데이터로 모달 내용 채우기
+    document.getElementById("p_title").textContent = bookData.title;
+    document.getElementById("p_writer").textContent = bookData.author;
+    document.getElementById("p_publish").textContent = bookData.publisher_name;
+    document.getElementById("p_num").textContent = bookData.isbn;
+    const listData = booksArr.find(b => String(b.isbn) === String(isbn));
+    document.getElementById("p_amount").textContent = listData ? listData.amount : "-";
+
+    // 평점(별) 그리기 로직 (서버에서 받은 rating 사용)
+    const ratingVal = parseFloat(bookData.rating); // 서버가 준 최신 평점
+    const fullStars = Math.floor(ratingVal);
+    const emptyStars = 5 - fullStars;
+    const starStr = "⭐".repeat(fullStars) + "☆".repeat(emptyStars);
+
+    document.getElementById("p_stars").textContent = starStr;
+    document.getElementById("p_rating_value").textContent = `(${ratingVal.toFixed(1)})`;
+
+    // 이미지 처리
+    const imageElement = document.getElementById("Detail_image");
+    if (imageElement) {
+      if (bookData.image_url && bookData.image_url.trim() !== "") {
+        imageElement.innerHTML = `
+                <img src="${bookData.image_url}"
+                     alt="${bookData.title}" 
+                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 5px;">
+              `;
+      } else {
+        imageElement.innerHTML = `
+                <div style="width:100%; height:100%; background:#eee; display:flex; align-items:center; justify-content:center; color:#888;">
+                    이미지 없음
+                </div>`;
+      }
+    }
+
+    // 리뷰 목록 및 내 리뷰 상태 로드
+    closeReviewForm();
+    document.getElementById("my_review_actions").innerHTML = "";
+    await loadMyReviewStatus(isbn);
+    await loadAllReviews(isbn);
+
+  } catch (error) {
+    console.error("상세 정보 로드 오류:", error);
+    alert("도서 정보를 불러올 수 없습니다: " + error.message);
+    closeDetail(); // 오류 시 모달 닫기
   }
- 
- 
 }
 
 // 리뷰 폼 열기/닫기/제출
-function openReviewForm(mode, rating=5, content="") {
-    const form = document.getElementById("review_form_container");
-    form.style.display = "block";
-    
-    // 입력창 초기화
-    document.getElementById("review_rating").value = rating;
-    document.getElementById("review_content").value = content;
-    
-    // 모드(등록/수정)를 데이터 속성에 저장
-    form.dataset.mode = mode;
+function openReviewForm(mode) {
+  const form = document.getElementById("review_form_container");
+  form.style.display = "block";
+  form.dataset.mode = mode; // 'create' or 'update'
+
+  if (mode === 'update' && myReviewData) {
+    // 수정 모드일 때: 전역 변수(myReviewData)에서 값을 가져와 세팅
+    document.getElementById("review_rating").value = myReviewData.rating;
+    document.getElementById("review_content").value = myReviewData.content;
+  } else {
+    // 작성 모드일 때: 초기화
+    document.getElementById("review_rating").value = "5";
+    document.getElementById("review_content").value = "";
+  }
 }
 
 function closeReviewForm() {
-    document.getElementById("review_form_container").style.display = "none";
+  document.getElementById("review_form_container").style.display = "none";
 }
 
-// 리뷰 등록하기
+// 리뷰 등록/수정 제출 함수
 async function submitReview() {
-   //토큰제거 > 로그인api로 수정 대체 예정.
-    const form = document.getElementById("review_form_container");
-    const mode = form.dataset.mode;
-    
-    const rating = document.getElementById("review_rating").value;
-    const content = document.getElementById("review_content").value;
+  const form = document.getElementById("review_form_container");
+  const mode = form.dataset.mode;
 
-    let url = "";
-    let method = "POST";
-    let bodyData = {};
+  const rating = document.getElementById("review_rating").value;
+  const content = document.getElementById("review_content").value;
 
-    if (mode === 'create') {
-        url = "http://127.0.0.1:8000/api/reviews/create/";
-        bodyData = { isbn: currentIsbn, rating: rating, content: content };
+  if (!content.trim()) {
+    alert("내용을 입력해주세요.");
+    return;
+  }
+
+  let url = "";
+  let bodyData = {};
+
+  if (mode === 'create') {
+    url = "http://127.0.0.1:8000/api/reviews/create/";
+    bodyData = { isbn: currentIsbn, rating: rating, content: content };
+  } else {
+    // 수정 시 myReviewId 사용
+    url = `http://127.0.0.1:8000/api/reviews/update/${myReviewId}/`;
+    bodyData = { rating: rating, content: content };
+  }
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include", // 세션 인증 필수
+      body: JSON.stringify(bodyData)
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      alert(result.message);
+      // 성공 후 상세화면 새로고침 (변경된 내용 반영)
+      display_Detail(currentIsbn);
     } else {
-        url = `http://127.0.0.1:8000/api/reviews/update/${myReviewId}/`;
-        bodyData = { rating: rating, content: content };
+      alert("실패: " + (result.error || "알 수 없는 오류"));
     }
-
-    try {
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(bodyData)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            alert(result.message);
-            // 화면 갱신
-            display_Detail(currentIsbn);
-        } else {
-            alert("실패: " + (result.error || "알 수 없는 오류"));
-        }
-    } catch (error) {
-        console.error("리뷰 저장 오류:", error);
-    }
+  } catch (error) {
+    console.error("리뷰 저장 오류:", error);
+    alert("서버 통신 중 오류가 발생했습니다.");
+  }
 }
-
-// 리뷰 삭제하기
-// Django API에서 리뷰 삭제는 주어지지 않아 작성하지 않았습니다.
 
 // 전체 리뷰 목록 가져오기
 async function loadAllReviews(isbn) {
-    const listDiv = document.getElementById("reviews_list");
-    listDiv.innerHTML = "로딩 중...";
+  const listDiv = document.getElementById("reviews_list");
+  listDiv.innerHTML = "로딩 중...";
 
-    try {
-        // views.py의 read_reviews 엔드포인트 호출
-        const response = await fetch(`http://127.0.0.1:8000/api/books/${isbn}/reviews/`);
-        const data = await response.json();
+  try {
+    // views.py의 read_reviews 엔드포인트 호출
+    const response = await fetch(`http://127.0.0.1:8000/api/books/${isbn}/reviews/`);
+    const data = await response.json();
 
-        if (!data.reviews || data.reviews.length === 0) {
-            listDiv.innerHTML = "<p>등록된 리뷰가 없습니다.</p>";
-            return;
-        }
+    if (!data.reviews || data.reviews.length === 0) {
+      listDiv.innerHTML = "<p>등록된 리뷰가 없습니다.</p>";
+      return;
+    }
 
-        let html = "";
-        data.reviews.forEach(review => {
-            const stars = "⭐".repeat(review.rating);
-            html += `
+    let html = "";
+    data.reviews.forEach(review => {
+      const stars = "⭐".repeat(review.rating);
+      html += `
                 <div style="border-bottom:1px solid #eee; padding: 10px 0;">
                     <div style="font-size:12px; color:gray;">
-                        <span>${review.member__login_id}</span> | <span>${review.created_at.substring(0,10)}</span>
+                        <span>${review.member__login_id}</span> | <span>${review.created_at.substring(0, 10)}</span>
                     </div>
                     <div style="color:#f39c12;">${stars}</div>
                     <div>${review.content}</div>
                 </div>
             `;
-        });
-        listDiv.innerHTML = html;
+    });
+    listDiv.innerHTML = html;
 
-    } catch (error) {
-        listDiv.innerHTML = "리뷰를 불러올 수 없습니다.";
-        console.error(error);
+  } catch (error) {
+    listDiv.innerHTML = "리뷰를 불러올 수 없습니다.";
+    console.error(error);
+  }
+}
+
+async function loadMyReviewStatus(isbn) {
+  const actionDiv = document.getElementById("my_review_actions");
+  actionDiv.innerHTML = "<span>권한 확인 중...</span>";
+
+  try {
+    const encodedIsbn = encodeURIComponent(isbn);
+    const response = await fetch(`http://127.0.0.1:8000/api/books/${encodedIsbn}/status/`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include"
+    });
+
+    if (!response.ok) throw new Error("상태 확인 실패");
+
+    const data = await response.json();
+
+    // 로그인하지 않은 경우
+    if (!data.is_authenticated) {
+      actionDiv.innerHTML = "<p style='color:gray; font-size:14px;'>로그인 후 리뷰를 작성할 수 있습니다.</p>";
+      return;
     }
+
+    // 이미 작성한 리뷰가 있는 경우 (수정 기능만 제공)
+    if (data.my_review) {
+      myReviewId = data.my_review.review_id;
+      myReviewData = data.my_review; // ★ 데이터를 전역 변수에 저장 (수정 시 사용)
+
+      const stars = "⭐".repeat(data.my_review.rating);
+
+      actionDiv.innerHTML = `
+                <div style="padding: 10px; background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 5px; margin-bottom: 10px;">
+                    <div style="font-weight:bold; color:green; margin-bottom:5px;">내가 쓴 리뷰</div>
+                    <div style="color:#f39c12;">${stars}</div>
+                    <div style="color:#555; margin: 5px 0; white-space: pre-wrap;">${data.my_review.content}</div>
+                    <div style="text-align:right;">
+                        <button onclick="openReviewForm('update')" 
+                                style="cursor:pointer; background:white; border:1px solid #ccc; padding:3px 8px; border-radius:3px;">수정</button>
+                    </div>
+                </div>
+            `;
+      return;
+    }
+
+    // 대여한 적이 없는 경우
+    if (!data.has_borrowed) {
+      actionDiv.innerHTML = "<p style='color:gray; font-size:14px;'>이 책을 대여한 이력이 있어야 리뷰를 작성할 수 있습니다.</p>";
+      return;
+    }
+
+    // 리뷰 작성 가능 (로그인O, 대여O, 리뷰X)
+    actionDiv.innerHTML = `
+            <button onclick="openReviewForm('create')" 
+                    style="width:100%; padding:10px; background-color:green; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
+                리뷰 작성하기
+            </button>
+        `;
+
+  } catch (error) {
+    console.error(error);
+    actionDiv.innerHTML = "";
+  }
 }
 
 // 모달 닫기 기능
