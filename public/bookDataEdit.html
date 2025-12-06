@@ -21,7 +21,6 @@
       </div>
       <div class="Menu-bar" id="Menu-bar_Manager" style="display: block">
         <a class="Menu-item" type="button" href="Member.html">회원관리</a>
-        <a class="Menu-item" type="button" href="ReviewManage.html">리뷰관리</a>
         <a class="Menu-item" type="button" href="Main.html">메인화면으로</a>
         <a class="Menu-item" type="button" href="CheckBook.html">도서대출/반납</a>
       </div>
@@ -42,10 +41,11 @@
         </form>
         <img src="./img/새로고침.png" width="60px" height="45px" onclick="refresh()"
           style="margin-right: 5%; margin-left: 1%; cursor: pointer" />
-        <!-- 추가 -->
         <input type="button" id="manage_pub_btn" onclick="openPublisherModal()" value="출판사 관리"
           style="margin-right: 10px; background-color: #555; cursor: pointer; color: white; border: none; padding: 5px 10px; border-radius: 4px;" />
         <input type="button" id="manage_cat_btn" onclick="openCategoryModal()" value="카테고리 관리"
+          style="margin-right: 10px; background-color: #555; cursor: pointer; color: white; border: none; padding: 5px 10px; border-radius: 4px;" />
+        <input type="button" id="manage_pol_btn" onclick="openPolicyModal()" value="정책 관리"
           style="margin-right: 10px; background-color: #555; cursor: pointer; color: white; border: none; padding: 5px 10px; border-radius: 4px;" />
 
         <input type="button" id="add_btn" onclick="ModalVisible(true,true)" value="도서 등록" />
@@ -235,8 +235,52 @@
       </div>
     </div>
   </section>
-
   <script src="./js/categoryDataEdit.js"></script>
+
+  <div id="policy-modal-wrap" class="modal-overlay"
+    style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; justify-content: center; align-items: center;">
+
+    <div class="modal-content"
+      style="background: white; padding: 30px; border-radius: 10px; width: 400px; position: relative; margin: 10% auto;">
+
+      <h2
+        style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #9c27b0; padding-bottom: 10px; color: #9c27b0;">
+        운영 정책 설정</h2>
+
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-weight: bold;">최대 대여 권수 (권)</label>
+          <input type="number" id="policy_max_borrow" style="padding: 5px; width: 100px; text-align: right;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-weight: bold;">기본 대여 기간 (일)</label>
+          <input type="number" id="policy_due_days" style="padding: 5px; width: 100px; text-align: right;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-weight: bold;">연장 가능 기간 (일)</label>
+          <input type="number" id="policy_extend_days" style="padding: 5px; width: 100px; text-align: right;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label style="font-weight: bold;">연체 패널티 (일)</label>
+          <input type="number" id="policy_penalty_days" style="padding: 5px; width: 100px; text-align: right;">
+        </div>
+
+      </div>
+
+      <div style="margin-top: 30px; text-align: center; display: flex; justify-content: space-between;">
+        <button onclick="closePolicyModal()"
+          style="width: 48%; padding: 10px; background: #ccc; border: none; border-radius: 5px; cursor: pointer; color: black; font-weight: bold;">닫기</button>
+        <button onclick="savePolicy()"
+          style="width: 48%; padding: 10px; background: #9c27b0; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold;">저장</button>
+      </div>
+
+    </div>
+  </div>
+  <script src="./js/policyDataEdit.js"></script>
 </body>
 
 </html>

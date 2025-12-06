@@ -148,7 +148,11 @@ def update_member_info(request):
             if Member.objects.filter(phone_number=new_phone).exclude(pk=user.pk).exists():
                 return JsonResponse({"error": "이미 사용 중인 전화번호입니다."}, status=400)
             user.phone_number = new_phone
-            
+        
+        # 생년월일 수정 (YYYY-MM-DD 형식)
+        if 'birth_date' in data:
+            user.birth_date = data['birth_date'] 
+
         #이름 정보 업데이트
         if 'first_name' in data:
             user.first_name = data['first_name']
@@ -162,7 +166,8 @@ def update_member_info(request):
                 "login_id": user.login_id,
                 "first_name": user.first_name,
                 "email": user.email,
-                "phone_number": user.phone_number
+                "phone_number": user.phone_number,
+                "birth_date": user.birth_date
             }
         }, status=200)
 
