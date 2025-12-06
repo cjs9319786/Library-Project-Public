@@ -36,6 +36,10 @@ urlpatterns = [
 
     path('reviews/update/<int:review_id>/', views.update_review, name='update_review'),
 
+    path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
+    #로그인 상태확인
+    path('login-check/', views.login_check, name='login_check'),
+
     # [추가] 중복 체크용 URL
     path('check-id/', views.check_id_duplicate, name='check_id_duplicate'),
     
@@ -110,5 +114,6 @@ urlpatterns = [
 
     #운영 정책 관리 (조회, 수정)
     path('admin/policy/', views.admin_policy, name='admin_policy'),
+
 
 ]

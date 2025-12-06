@@ -4,22 +4,13 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // *****수정***** 회원 정보 불러오기
   async function load_member_info() {
-    // 토큰 확인 (로그인 여부 체크용)
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-        alert("로그인 정보가 없습니다. 로그인 페이지로 이동합니다.");
-        window.location.href = "Login.html";
-        return;
-    } 
 
     try {
-      console.log("회원 정보 요청 시작...");
       const response = await fetch("http://127.0.0.1:8000/api/me/", {
         method: "GET",
-        credentials: "include", // 세션 쿠키 전송
+        credentials: "include", 
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, 
         },
       });
       
@@ -30,7 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const data = await response.json();
-      console.log("받아온 회원 데이터:", data); // F12 콘솔에서 확인 가능
 
       // [디버깅] 데이터가 비어있는지 확인
       if (!data.login_id) {

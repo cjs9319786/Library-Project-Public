@@ -14,7 +14,7 @@ from django.contrib.auth import logout
 from django.db.models import ProtectedError
 
 
-@csrf_exempt #Postman으로 API 테스트를 할 수 있게 CSRF 검증을 임시로 끈다.
+@csrf_exempt #Postman으로 API 테스트를 할 수 있게 CSRF 검증을 임시로 끈다. 
 #회원가입
 def signup(request):
     #회원가입은 POST 요청으로만 처리
@@ -22,7 +22,6 @@ def signup(request):
         try:
             #요청의 body에 담긴 JSON 데이터를 파이썬 딕셔너리로 변환
             data = json.loads(request.body)
-            
             #AbstractUser의 필수 필드 및 커스텀 필드 가져오기
             login_id = data['login_id']
             password = data['password']
@@ -31,32 +30,38 @@ def signup(request):
             birth_date = data['birth_date']
             phone_number = data['phone_number']
 
-            # (수정)중복 검사 로직을 명시적으로 분리 (정확한 에러 메시지를 위해)
+ # (수정)중복 검사 로직을 명시적으로 분리 (정확한 에러 메시지를 위해)
             if Member.objects.filter(login_id=login_id).exists():
-                return JsonResponse({"error": "이미 존재하는 아이디입니다."}, status=400)
+                return JsonResponse({"error": "이미 존재하는 아이디입니다.", "errorcode": 1}, status=400)
             
             if Member.objects.filter(email=email).exists():
-                return JsonResponse({"error": "이미 가입된 이메일입니다."}, status=400)
+                return JsonResponse({"error": "이미 가입된 이메일입니다.", "errorcode": 2}, status=400)
             
             if Member.objects.filter(phone_number=phone_number).exists():
-                return JsonResponse({"error": "이미 가입된 전화번호입니다."}, status=400)
-
-            #비밀번호를 암호화
-            hashed_password = make_password(password)
-
+                return JsonResponse({"error": "이미 가입된 전화번호입니다.", "errorcode": 3}, status=400)
             #Member 모델로 객체를 생성하고 DB에 INSERT
-            Member.objects.create(
+            new_member = Member.objects.create_user(
                 login_id=login_id,
-                password=hashed_password,
+                password=password,
                 first_name=first_name,
                 email=email,
                 birth_date=birth_date,
                 phone_number=phone_number
                 #status는 default='정상'이므로 생략 가능
             )
-            
             #성공 응답 반환 (HTTP 201 Created)
-            return JsonResponse({"message": "회원가입 성공!"}, status=201)
+            return JsonResponse({"message": "회원가입 성공!",
+                "created_user_id": new_member.login_id,  # 아이디
+                "created_user_name": new_member.first_name, # 이름
+                "pk": new_member.pk # 내부 관리 번호 (id)
+                }, status=201)
+                
+
+        #ID 중복 오류 (login_id가 unique=True이므로)
+        except IntegrityError as e:
+            print("IntegrityError:", e)
+            return JsonResponse({"error": "이미 존재하는 아이디입니다."}, status=400)
+
         
         #JSON 데이터에 필수 키가 빠졌을 경우
         except KeyError:
@@ -65,10 +70,6 @@ def signup(request):
         #JSON 형식이 아닐 경우
         except json.JSONDecodeError:
             return JsonResponse({"error": "잘못된 JSON 형식입니다."}, status=400)
-        
-        # 예상치 못한 기타 에러 확인용
-        except Exception as e:
-            return JsonResponse({"error": f"서버 오류: {str(e)}"}, status=500)
 
     #POST가 아닌 GET 등의 요청이 오면 에러 반환
     else:
@@ -92,7 +93,7 @@ def login_user(request):
     #Member 모델의 USERNAME_FIELD='login_id'를 자동으로 인식하여 인증
     user = authenticate(request, login_id=login_id, password=password)
 
-    if user is not None:
+    if user is not None:  
         #user 객체가 유효하면 인증 성공
         #login 함수로 세션을 생성하고 쿠키를 브라우저에 전송
         login(request, user)
@@ -102,13 +103,15 @@ def login_user(request):
             "user": {
                 "login_id": user.login_id,
                 "first_name": user.first_name,
-                "email": user.email
+                "email": user.email,
+                "superuser": user.is_superuser,
+                "staff": user.is_staff
             }
         }, status=200)
     else:
         #user가 None이면 인증 실패
         return JsonResponse({"error": "아이디 또는 비밀번호가 올바르지 않습니다."}, status=401)
-    
+@csrf_exempt    
 #로그아웃
 def logout_user(request):
     logout(request)
@@ -808,21 +811,20 @@ def check_user_book_status(request, isbn):
     """
     if request.method != 'GET':
         return JsonResponse({"error": "GET 요청만 허용됩니다."}, status=405)
-
-    # 로그인 확인
+    
+    # 최종으로 로그인 확인
     if not request.user.is_authenticated:
         return JsonResponse({
             "is_authenticated": False,
             "has_borrowed": False,
             "my_review": None
         }, status=200)
-
+    
     try:
         user = request.user
-        
         # 1. 대여 기록 확인 (Borrow 테이블에서 해당 사용자와 ISBN으로 검색)
         # 빌린 기록이 있으면(과거 포함) 쓸 수 있게 설정
-        has_borrowed = Borrow.objects.filter(member=user, book__isbn__isbn=isbn).exists()
+        has_borrowed = Borrow.objects.filter(member=user, book__isbn=isbn).exists()
 
         # 2. 내 리뷰 확인
         my_review = Review.objects.filter(member=user, isbn__isbn=isbn).first()
@@ -1674,3 +1676,17 @@ def admin_policy(request):
     
     else:
         return JsonResponse({"error": "허용되지 않는 요청입니다."}, status=405)
+    
+@csrf_exempt
+def login_check(request):
+    if request.method != 'GET':
+        return JsonResponse({"error": "GET 요청만 허용됩니다."}, status=405)
+
+    if request.user.is_authenticated:
+        return JsonResponse({
+            "is_authenticated": True,
+            "login_id": request.user.login_id,
+            "name": request.user.first_name
+        }, status=200)
+    else:
+        return JsonResponse({"is_authenticated": False}, status=200)

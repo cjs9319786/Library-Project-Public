@@ -274,8 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("서버 통신 중 오류가 발생했습니다.");
         }
     });
-
-}); // [중요] 여기서 DOMContentLoaded가 닫힙니다.
+});
 
 
 // ==========================================

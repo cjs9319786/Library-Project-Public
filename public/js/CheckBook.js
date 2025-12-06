@@ -4,23 +4,6 @@ const pagesPerGroup = 5; // 한 그룹에 표시할 페이지 수
 let books = []; // 검색 결과를 저장할 배열 (전역 변수)
 let returns = []; // 반납 검색 결과를 저장할 배열
 
-// Django CSRF 토큰 가져오기 함수 - POST 요청에 필요
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // 쿠키 이름으로 시작하는 문자열 찾기
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     const boardPage = document.getElementById("board_page");
     const board = document.getElementById("result_book_div");
@@ -31,10 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 관리자 메뉴 표시 여부 결정
     checkAdminAuthority();
 
-    // ==============================================
-    // 1. 도서 검색 기능 (Main.js와 동일한 로직 적용)
-    // ==============================================
+    /*도서 검색 기능 Main.js와 동일*/
     book_search_btn.addEventListener("click", async function () {
+        console.log("검색 시작..");
         const searchInput = document.getElementById("book_search_input").value;
         const searchParams = searchInput.toString().trim();
 
@@ -44,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         try {
-            // Main.js와 동일하게 GET 요청 사용
             const endUrl = `http://127.0.0.1:8000/api/books/?q=${encodeURIComponent(searchParams)}`;
             
             const response = await fetch(endUrl, {
@@ -56,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const result = await response.json();
 
-            // 결과가 없는 경우
             if (!result.books || result.books.length === 0) {
                 alert("검색 결과가 없습니다!");
                 books = [];
@@ -64,17 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // booksArr 대신 전역변수 books에 바로 할당
             books = result.books.map((row) => ({
                 isbn: row.isbn,
                 title: row.title,
                 author: row.author,
                 publisher: row.publisher__publisher_name,
-                stock_count: row.stock_count, // views.py에서 온 stock_count 사용
+                stock_count: row.stock_count, // views.py에서 온 stock_count 사용 -재고
                 image_url: row.image_url
             }));
-
-            console.log("Mapped Books:", books);
             display_book_list(1);
 
         } catch (error) {
@@ -83,10 +60,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // ==========================================
-    // 2. 도서 목록 출력 함수
-    // ==========================================
+    /**
+      도서 목록 출력 함수
+    * @param {number} page - 표시할 페이지 번호
+    */
     function display_book_list(page) {
+        console.log("도서 목록 출력..., 페이지:", page);
         currentPage = page;
         const startIndex = (page - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
@@ -134,14 +113,9 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             board.appendChild(divItem);
         });
-
-        // 페이지네이션 버튼 생성
         createPaginationButtons();
     }
-
-    // ==========================================
-    // 3. 페이지네이션 버튼 생성 함수
-    // ==========================================
+    /* 페이지 네이션 버튼 생성 */
     function createPaginationButtons() {
         const totalPages = Math.ceil(books.length / itemsPerPage);
         boardPage.innerHTML = ""; // 초기화
@@ -186,21 +160,19 @@ document.addEventListener("DOMContentLoaded", () => {
         }));
         boardPage.appendChild(createBtn(">>", () => display_book_list(totalPages)));
     }
-
-    // ==========================================
-    // 4. 반납 검색 기능 (내 대여 목록 조회)
-    // ==========================================
+    /* 도서 반납 내역 조회 기능 */
     return_search_btn.addEventListener("click", async function () {
-        
-        // '로그인된 세션'을 기준으로 조회
+        console.log("반납 내역 조회 시작...");
+        result_return_div.innerHTML = ""; // 초기화
         // views.py의 my_borrows 함수 호출
         try {
             const response = await fetch("http://127.0.0.1:8000/api/me/borrows/", {
                 method: "GET",
                 headers: { 
-                    "Content-Type": "application/json" 
+                    "Content-Type": "application/json", 
+                    
                 },
-                credentials: "include" // 로그인 세션 전달
+                credentials: "include"
             });
             
             const result = await response.json();
@@ -268,10 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// ==========================================
-// 5. 전역 함수들 (대여, 반납, 페이지 이동, 관리자 권한 확인)
-// ==========================================
-
 // 대여 요청 함수 (views.py: borrow_books 대응)
 async function requestBorrow(isbn) {
     if (!confirm("이 책을 대여하시겠습니까?")) {
@@ -284,17 +252,17 @@ async function requestBorrow(isbn) {
     };
 
     // 쿠키에서 CSRF 토큰 가져오기
-    const csrftoken = getCookie('csrftoken');
+    //const csrftoken = getCookie('csrftoken');
 
     try {
         const response = await fetch("http://127.0.0.1:8000/api/borrow/", { 
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken, // CSRF 토큰 전달(POST 요청에 필요)
+                // "X-CSRFToken": csrftoken,  CSRF 토큰 전달(POST 요청에 필요) 일단 주석처리 보안부분
             },
+            credentials: "include",
             // 로그인 쿠키(sessionid)를 백엔드로 같이 보내주는 옵션
-            credentials: "include", 
             body: JSON.stringify(data),
         });
 
@@ -327,7 +295,7 @@ async function processReturn(borrowId) {
         return;
     }
 
-    const csrftoken = getCookie('csrftoken');
+    //const csrftoken = getCookie('csrftoken');
 
     try {
         // views.py의 return_book 호출
@@ -335,7 +303,7 @@ async function processReturn(borrowId) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken,
+                //"X-CSRFToken": csrftoken, CSRF 토큰 전달(POST 요청에 필요) 일단 주석처리 보안부분
             },
             credentials: "include",
             body: JSON.stringify({ borrow_id: borrowId }) // borrow_id 전송
@@ -372,9 +340,9 @@ async function checkAdminAuthority() {
         const response = await fetch("http://127.0.0.1:8000/api/me/", {
             method: "GET",
             headers: { 
-                "Content-Type": "application/json" 
-            },
-            credentials: "include" // 세션 쿠키 전달
+                "Content-Type": "application/json",              
+            }, 
+            credentials: "include",            
         });
 
         if (response.ok) {
@@ -393,19 +361,20 @@ async function checkAdminAuthority() {
         console.error("사용자 권한 확인 중 오류 발생:", error);
     }
 }
-
+/*
 async function logout() {
     // 1. 서버에 로그아웃 요청 보내기 
     try {
-        const csrftoken = getCookie('csrftoken'); // 상단에 정의된 getCookie 함수 사용
+        //const csrftoken = getCookie('csrftoken'); // 상단에 정의된 getCookie 함수 사용
 
         const response = await fetch("/api/logout/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrftoken, // CSRF 토큰 전달(POST 요청에 필요)
+               // "X-CSRFToken": csrftoken,  CSRF 토큰 전달(POST 요청에 필요) 일단 주석처리 보안부분
+               credentials: "include"
             },
-            credentials: "include", // 세션 쿠키를 서버로 보내서 누구를 로그아웃할지 알려줌
+            
         });
 
         // 2. 서버 응답 처리
@@ -422,9 +391,27 @@ async function logout() {
         localStorage.removeItem("authToken"); // 토큰을 썼다면 삭제
         window.location.href = "Main.html";   // 메인 화면으로 이동
     }
-}
+}*/
 // 전역 스코프 할당 (HTML onclick에서 접근 가능하도록)
 window.requestBorrow = requestBorrow;
 window.processReturn = processReturn;
-window.navigateToPage = navigateToPage;
-window.logout = logout;
+//window.logout = logout;
+
+/*
+// Django CSRF 토큰 가져오기 함수 - POST 요청에 필요
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // 쿠키 이름으로 시작하는 문자열 찾기
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+*/

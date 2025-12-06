@@ -55,7 +55,6 @@ async function fetchPublishers(query = "") {
         if (response.ok) {
             const result = await response.json();
             allPublishers = result.publishers; 
-            
             // 검색 결과로 1페이지 다시 그리기
             renderPublisherPage(1);
         } else {

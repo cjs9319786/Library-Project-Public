@@ -129,9 +129,9 @@ body {
 }
 
 .Result_wrap {
-  width: 980px;
+  width: 1600px;
   border-radius: 10px;
-  height: 870px;
+  height: 900px;
   border-bottom-left-radius: 15px;
   border-bottom-right-radius: 15px;
   border: 2px solid black;
@@ -289,24 +289,25 @@ body {
   transform: translateY(-5px);
   background: rgb(232, 255, 216);
 }
-
+/* 상세 모달 CSS */
 .Detail_top {
   width: 90%;
   padding-left: 5%;
-  height: 90px;
   font-size: 23px;
   display: flex;
   justify-content: center;
   align-items: center;
   font-family: "NanumSquareNeoHeavy";
-  border-bottom: 1px solid gray;
+  padding-bottom: 15px;
 }
 .Detail_middle {
   width: 100%;
   display: flex;
+  justify-content: center;
+  border: solid gray 1px;
 }
 .Detail_middle_item {
-  width: 350px;
+  width: 50%;
   height: 400px;
 }
 .Detail_middle_item p {
@@ -314,7 +315,7 @@ body {
   font-family: "NanumSquareNeoHeavy";
 }
 .Detail_Writer {
-  width: 350px;
+  width: 100%;
   height: 230px;
   display: flex;
   align-items: center;
@@ -322,16 +323,14 @@ body {
   border-bottom: 1px solid gray;
 }
 .Detail_Publish {
-  width: 350px;
+  width: 100%;
   height: 170px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid gray;
 }
 .Detail_image {
-  width: 350px;
-  border: 1px solid black;
+  width: 50%;
 }
 .Detail_bottom {
   width: 100%;
@@ -383,19 +382,22 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* 반투명 검정 */
-  z-index: 2000; /* 다른 요소보다 위에 오도록 */
+  background-color: rgba(0, 0, 0, 0.5); 
+  z-index: 2000;
   display: flex;
   justify-content: center;
-  align-items: center; /* 정중앙 정렬 */
+  align-items: center; 
 }
 
 /* 모달 창 본체 */
 .Result_Detail {
   background-color: white;
-  width: 500px;
+  width: 800px;
+  max-height: 950px;
   padding: 30px;
   border-radius: 15px;
   position: relative;
-  display: block; /* overlay 안에서는 block */
+  display: block; 
+  overflow-y: auto;
+  overflow-x: hidden;
 }
