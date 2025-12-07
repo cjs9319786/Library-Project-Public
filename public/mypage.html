@@ -78,44 +78,44 @@
       <button onclick="deleteAccount()" style="padding: 10px; background-color: #ffcccc; cursor: pointer;">회원
         탈퇴</button>
     </div>
-    <!--[추가] 내 정보 수정 모달 -->
-    <div id="modal_editInfo" class="modal">
-      <div>
+  <!--[추가] 내 정보 수정 모달 -->
+  <div id="modal_editInfo" class="modal">
+    <div>
         <h3>정보 수정</h3>
-
+        
         <label>이름</label><br>
         <input type="text" id="edit_name" placeholder="이름"><br>
-
+        
         <label>이메일</label><br>
         <input type="email" id="edit_email" placeholder="이메일"><br>
-
+        
         <label>전화번호</label><br>
         <input type="text" id="edit_hp" placeholder="010-XXXX-XXXX"><br>
-
+        
         <label>생년월일</label><br>
         <input type="date" id="edit_birth_date" style="width: 100%; margin-bottom: 20px;"><br>
 
         <button onclick="submitEditInfo()">저장</button>
         <button onclick="closeModal('editInfo')">취소</button>
-      </div>
     </div>
-    <!--[추가] 비밀번호 변경 모달 -->
-    <div id="modal_changePw" class="modal">
-      <div>
-        <h3>비밀번호 변경</h3>
-        <input type="password" id="current_pw" placeholder="현재 비밀번호"><br><br>
-        <input type="password" id="new_pw" placeholder="새 비밀번호"><br><br>
-        <button onclick="submitChangePw()">변경</button>
-        <button onclick="closeModal('changePw')">취소</button>
-      </div>
-    </div>
-    <!--[추가] 내가 쓴 리뷰 목록 섹션 -->
-    <div id="my_reviews_wrap">
-      <h3>내가 쓴 리뷰</h3>
-      <div id="my_reviews_list">
-      </div>
+</div>
+  <!--[추가] 비밀번호 변경 모달 -->
+  <div id="modal_changePw" class="modal">
+    <div>
+      <h3>비밀번호 변경</h3>
+      <input type="password" id="current_pw" placeholder="현재 비밀번호"><br><br>
+      <input type="password" id="new_pw" placeholder="새 비밀번호"><br><br>
+      <button onclick="submitChangePw()">변경</button>
+      <button onclick="closeModal('changePw')">취소</button>
     </div>
   </div>
+  <!--[추가] 내가 쓴 리뷰 목록 섹션 -->
+  <div id="my_reviews_wrap">
+    <h3>내가 쓴 리뷰</h3>
+    <div id="my_reviews_list">
+    </div>
+  </div>
+</div>
 
   <script>
     function logout() {
@@ -125,5 +125,4 @@
   </script>
   <script src="./js/mypage.js"></script>
 </body>
-
 </html>

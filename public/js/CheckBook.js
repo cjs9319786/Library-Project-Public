@@ -168,9 +168,9 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const response = await fetch("http://127.0.0.1:8000/api/me/borrows/", {
                 method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-
+                headers: { 
+                    "Content-Type": "application/json", 
+                    
                 },
                 credentials: "include"
             });
@@ -339,10 +339,10 @@ async function checkAdminAuthority() {
         // 내 정보 조회 API 호출 (로그인 쿠키 포함)
         const response = await fetch("http://127.0.0.1:8000/api/me/", {
             method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            credentials: "include",
+            headers: { 
+                "Content-Type": "application/json",              
+            }, 
+            credentials: "include",            
         });
 
         if (response.ok) {

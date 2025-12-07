@@ -58,8 +58,16 @@ async function fetchPublishers(query = "") {
             // 검색 결과로 1페이지 다시 그리기
             renderPublisherPage(1);
         } else {
-            alert("목록을 불러오지 못했습니다.");
+            if(response.status === 403){
+                alert("관리자 권한이 필요합니다.");
+                closePublisherModal();
+                return;
+            }else{
+                alert(`"목록을 불러오지 못했습니다."`);
+                closePublisherModal();
+                    return;
         }
+    }
     } catch (error) {
         console.error(error);
         alert("서버 통신 오류");
