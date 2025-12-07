@@ -380,7 +380,6 @@
 }
 
 #memberSignUpForm label,
-#rent_modal label,
 #memberForm label {
   display: block;
   font-weight: bold;
@@ -396,7 +395,6 @@
 
 #memberSignUpForm input,
 #memberSignUpForm select,
-#rent_modal input,
 #memberForm input,
 #memberForm select {
   width: 100%;
@@ -421,7 +419,6 @@
 
 #memberSignUpForm input:focus,
 #memberSignUpForm select:focus,
-#rent_modal input:focus,
 #memberForm input:focus,
 #memberForm select:focus {
   border-color: #4CAF50;
@@ -449,8 +446,7 @@
   border: 1px solid #ccc;
 }
 
-#btn_box,
-#rent_modal div:last-child {
+#btn_box {
   display: flex;
   justify-content: center;
   gap: 10px;
@@ -458,8 +454,7 @@
 }
 
 #sign_up_btn,
-#modify_btn,
-#rent_modal button {
+#modify_btn {
   width: 100%;
   height: 45px;
   border: none;
@@ -470,8 +465,7 @@
   transition: opacity 0.2s;
 }
 
-#sign_up_btn,
-#rent_modal button:first-child {
+#sign_up_btn {
   background-color: #4CAF50;
   color: white;
 }
@@ -480,14 +474,8 @@
   color: white;
 }
 
-#rent_modal button:last-child {
-  background-color: #9e9e9e !important;
-  color: white !important;
-}
-
 #sign_up_btn:hover,
-#modify_btn:hover,
-#rent_modal button:hover {
+#modify_btn:hover {
   opacity: 0.9;
 }
 
@@ -545,4 +533,83 @@
 
 #borrow_history_list_wrap button:hover {
   background-color: #d32f2f !important;
+}
+
+#rent_modal .modal-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important; 
+    justify-content: center;
+    
+    width: 400px !important;
+    margin: 15% auto !important;
+    padding: 30px;
+    text-align: center;
+}
+
+.rent-info-text {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: bold;
+    text-align: center;
+}
+.rent-info-text span {
+    color: #2196F3;
+    text-decoration: underline;
+}
+
+.input_wrap_rent {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+#rent_isbn_input {
+    width: 100% !important;
+    height: 50px !important;
+    font-size: 16px;
+    text-align: center;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#rent_isbn_input:focus {
+    border-color: #4CAF50;
+    background-color: #f9fff9;
+    outline: none;
+}
+
+.rent-btn-wrap {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+}
+
+.rent-btn-wrap button {
+    flex: 1;
+    height: 45px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    color: white;
+}
+
+.rent-btn-wrap button:first-child {
+    background-color: #4CAF50;
+}
+.rent-btn-wrap button:first-child:hover {
+    background-color: #45a049;
+}
+
+.rent-btn-wrap button:last-child {
+    background-color: #9e9e9e;
+}
+.rent-btn-wrap button:last-child:hover {
+    background-color: #757575;
 }
