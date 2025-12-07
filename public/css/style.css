@@ -76,3 +76,19 @@ body {
   text-align: center; /* 텍스트 가운데 정렬 */
   line-height: calc(10vh); /* 텍스트를 수직 가운데 정렬 */
 }
+
+#login_after button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 5px; 
+  font-family: "NanumSquareNeoBold";
+  transition: background-color 0.3s;
+}

@@ -3,386 +3,380 @@
   padding: 0;
   border: 0;
 }
-#Main {
+
+body {
+  background-color: #e0f8de;
+}
+
+.main {
   display: flex;
   justify-content: center;
 }
-.board {
-  height: 850px;
-}
+
 .board_wrap {
+  width: 1530px;
+  margin: 0 auto;
   background-color: white;
-  width: 70%;
-  height: 1050px;
-  border-bottom-left-radius: 15px;
-  border-bottom-right-radius: 15px;
+  border-radius: 15px;
+  padding: 20px;
+  min-height: 800px;
+  box-sizing: border-box;
 }
+
 .book_search {
   display: flex;
-  height: 70px;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid green;
+  justify-content: center;
+  margin-bottom: 20px;
+  height: 80px;
+}
+
+#searchForm {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+#search_bar {
+  width: 400px;
+  height: 45px;
+  border-radius: 10px;
+  border: 3px solid black;
+  padding: 0 15px;
+  font-size: 16px;
+}
+
+#book_search_btn {
+  width: 80px;
+  height: 49px;
+  border-radius: 10px;
+  border: 3px solid black;
+  background-color: white;
+  cursor: pointer;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+#manage_pub_btn,
+#manage_cat_btn,
+#manage_pol_btn {
+  height: 45px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0 15px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-right: 10px;
+  transition: background-color 0.2s;
+}
+
+#manage_pub_btn:hover,
+#manage_cat_btn:hover,
+#manage_pol_btn:hover {
+  background-color: #333;
+}
+
+#add_btn {
+  height: 45px;
+  background-color: white;
+  border: 2px solid green;
+  border-radius: 6px;
+  padding: 0 20px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+#add_btn:hover {
+  background-color: rgb(232, 255, 216);
+  transform: translateY(-2px);
+}
+
+.board_list {
+  width: 100%;
+}
+
+#board {
+  width: 100%;
+  border-top: 2px solid green;
 }
 
 .top {
   display: flex;
-  height: 48px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
-  border-bottom: 2px solid green;
+  align-items: center;
+  text-align: center;
+  font-weight: bold;
+  padding: 15px 0;
+  border-bottom: 2px solid #333;
+  background-color: #f5f5f5;
 }
 
 .li-item {
   display: flex;
-  height: 79px;
-  border-bottom: 1px solid #ddd;
-}
-.board .b_num {
-  width: 10%;
-  display: flex;
-  justify-content: center;
   align-items: center;
-  font-size: 20px;
-}
-.board .b_title {
-  width: 42%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-}
-.board .b_writer {
-  width: 20%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-}
-.board .b_publish {
-  width: 13%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-}
-.board .b_amount {
-  margin-left: 5%;
-  width: 10%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-}
-.board_page {
-  width: 100%;
-  height: 100px;
-  border-top: 2px gray solid;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
   text-align: center;
+  font-size: 15px;
+  background-color: #fff;
+  transition: background-color 0.2s;
 }
+
+.li-item:hover {
+  background-color: #f9f9f9;
+}
+
+.num { width: 15%; }
+.title { width: 35%; text-align: left; padding-left: 10px; }
+.writer { width: 15%; }
+.publish { width: 15%; }
+.date { width: 10%; }
+.count { width: 10%; }
+
+.del_button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.del_button:hover {
+  background-color: #45a049;
+}
+
+.board_page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+}
+
 .board_page a {
-  display: inline-block;
-  width: 50px;
-  height: 50px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin: 0 3px;
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  background-color: white;
+}
+
+.board_page a.on {
+  background-color: green;
+  color: white;
+  border-color: green;
+}
+
+.board_page a:hover:not(.on) {
+  background-color: #f0f0f0;
+}
+
+#book-add-modal-wrap,
+#publisher-modal-wrap,
+#category-modal-wrap {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: block;
+  text-align: center;
+  overflow: auto;
+  padding-top: 0;
+}
+
+#board-div,
+.modal-content {
+  background-color: #ffffff;
+  width: 650px;
+  height: auto;
+  max-height: 90vh;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
   box-sizing: border-box;
-  vertical-align: middle;
-  border: 2px solid black;
-  line-height: 100%;
-  border-radius: 6px;
-  margin: 5px;
-}
-.board_page a.bt {
-  padding-top: 10px;
-  font-size: 25px;
-  letter-spacing: -1px;
-}
 
-.board_page a.num_p {
-  padding-top: 9px;
-  font-size: 25px;
-}
-
-.board_page a.num_p.on {
-  border-color: black;
-  background: rgb(232, 255, 216);
-  color: black;
-}
-.board_page a.num_p:hover {
-  transform: translateY(-5px);
-  background: rgb(232, 255, 216);
-}
-.board_page a.bt:hover {
-  transform: translateY(-5px);
-  background: rgb(232, 255, 216);
-}
-#searchForm {
-  margin-left: 3%;
-  width: 80%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-#search_bar {
-  width: 70%;
-  height: 45px;
-  border-radius: 10px;
-  border: 3px solid black;
-}
-#book_search_btn {
-  width: 15%;
-  height: 50px;
-  border-radius: 10px;
-  border: 3px solid black;
-  background-color: white;
-  cursor: pointer;
-  margin-left: 5%;
-}
-
-#add_btn {
-  width: 10%;
-  height: 50px;
-  border-radius: 10px;
-  border: 2px solid black;
-  background-color: white;
-  cursor: pointer;
-  margin-right: 2%;
-  font-size: 20px;
-}
-#add_btn:hover {
-  background: rgb(232, 255, 216);
-}
-
-.board-container {
-  display: flex;
-  height: 700px;
-  align-items: center;
-  justify-content: center;
-}
-#board-div {
-  background-color: white;
-  width: 60%;
-  height: 800px;
-  border-radius: 20px;
-  justify-content: center;
-}
-.board-container {
-  display: flex;
-  height: 700px;
-  align-items: center;
-  justify-content: center;
-}
-#board-div {
-  background-color: white;
-  width: 60%;
-  height: 800px;
-  border-radius: 20px;
-  justify-content: center;
+  position: relative;
+  margin: 5% auto;
+  top: auto;
+  left: auto;
+  transform: none;
+  text-align: left;
 }
 
 .book-title {
   display: flex;
   align-items: center;
-  padding-left: 30px;
-  padding-top: 30px;
-  padding-right: 30px;
-  padding-bottom: 10px;
-  height: 65px;
-}
-.book-title p {
-  font-family: "NanumSquareNeoLight";
-  font-size: 30px;
-}
-#book_num {
-  padding-bottom: 2px;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  width: 19%;
-  height: 36px;
-  text-align: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
 }
 
 #book_title {
-  padding-bottom: 2px;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  font-size: 30px;
+  flex: 1;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
   font-family: "NanumSquareNeo";
-  outline: none;
-  width: 75%;
-  height: 36px;
-  margin-right: 10px;
-}
-#book_writer {
-  padding-bottom: 2px;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  font-size: 30px;
-  font-family: "NanumSquareNeo";
-  outline: none;
-  width: 45%;
-  height: 36px;
-  margin-right: 10px;
-  margin-left: 30px;
-}
-#book_publish {
-  padding-bottom: 2px;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  font-size: 30px;
-  font-family: "NanumSquareNeo";
-  outline: none;
-  width: 45%;
-  height: 36px;
-  margin-right: 10px;
-}
-#book_amount {
-  padding-bottom: 2px;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  font-size: 30px;
-  font-family: "NanumSquareNeo";
-  outline: none;
-  width: 45%;
-  height: 36px;
-  margin-right: 10px;
-  margin-bottom: 20px;
-  margin-left: 30px;
-}
-#book_pub_date {
-  padding-bottom: 2px;
-  border: none;
-  border-bottom: 1px solid #ccc;
-  font-size: 30px;
-  font-family: "NanumSquareNeo";
-  outline: none;
-  width: 45%;
-  height: 36px;
-  margin-right: 10px;
-  margin-bottom: 20px;
 }
 
-.subject-area {
-  resize: none;
-  width: 90%;
-  margin-left: 30px;
-  height: 400px;
-  font-family: "NanumSquareNeoLight";
-  font-size: 18px;
-  border: none;
+#book_title:focus {
+  background-color: #fff;
+  border-color: #4CAF50;
   outline: none;
-  box-sizing: border-box;
-  padding: 8px;
-  border-radius: 4px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.2) inset;
-  margin-bottom: 10px;
 }
-.btn-wrap {
-  width: 90%;
+
+.book-title p {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+}
+
+#book_num {
+  font-size: 16px;
+  font-weight: bold;
+  color: #555;
+}
+
+.input_wrap {
   display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.input_wrap input,
+.input_wrap select,
+#book_image {
+  width: 100%;
+  height: 45px;
+  padding: 0 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+#book_image {
+  margin-bottom: 20px;
+  font-family: "NanumSquareNeo";
+}
+
+.input_wrap input:focus,
+.input_wrap select:focus,
+#book_image:focus {
+  border-color: #4CAF50;
+  outline: none;
+  background-color: #fdfdfd;
+}
+
+input[readonly],
+select[disabled] {
+  background-color: #e9e9e9;
+  color: #666;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+#copy_list_area {
+  border: 1px solid #ddd !important;
+  background-color: #fafafa !important;
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+#copy_list_area h4 {
+  color: #333;
+  font-size: 16px;
+}
+
+#copy_list_tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+#copy_list_tbody tr:last-child {
+  border-bottom: none;
+}
+
+.btn-wrap {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
   justify-content: center;
-  align-items: center;
-  margin-left: 30px;
 }
 
 .modal-btn {
-  height: 40px;
-  width: 49%;
-  outline: none;
-  font-family: "NanumSquareNeo";
-  font-size: 20px;
-  border: none;
-  border-radius: 4px;
-  background-color: white;
+  height: 45px;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
   cursor: pointer;
-  transition: all 0.4s;
+  width: 100%;
+  transition: transform 0.2s, opacity 0.2s;
 }
-/* 검색 컨테이너*/ 
-.modal-btn:hover {
-  background-color: rgb(209, 227, 243);
+
+.modal-btn:active {
+  transform: scale(0.98);
+}
+
+#regist-book,
+#fix-book {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+#regist-book:hover,
+#fix-book:hover {
+  background-color: #45a049;
+}
+
+#delete-book {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  margin-top: 10px;
+}
+
+#delete-book:hover {
+  background-color: #d32f2f;
+}
+
+#exit-modal {
+  background-color: #9e9e9e;
+  color: white;
+  border: none;
 }
 
 #exit-modal:hover {
-  background-color: rgb(243, 209, 209);
-}
-/*끝*/
-#book-add-modal-wrap {
-  display: flex;
-  position: fixed;
-  top: 0;
-  left: 0;
-  padding-top: 100px;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(5px);
-  z-index: 1000;
-}
-
-/* 한 줄에 두 개의 입력창을 배치하는 컨테이너 */
-.input_wrap {
-    display: flex;
-    justify-content: space-between; /* 양옆으로 벌림 */
-    margin-bottom: 20px;            /* 아래 간격 */
-}
-
-/* input_wrap 안에 있는 모든 input 태그 (ISBN, 카테고리, 저자, 출판사 모두 적용) */
-.input_wrap input,
-.input_wrap select {
-    width: 48%;         /* 전체 너비의 약 절반 차지 (여유공간 2% 둠) */
-    height: 40px;       /* 높이 지정 */
-    font-size: 16px;    /* 글자 크기 */
-    border: none;
-    border-bottom: 1px solid #ccc; /* 밑줄 스타일 */
-    outline: none;      /* 클릭 시 테두리 없애기 */
-    padding: 5px 0;
-    background-color: transparent;
-}
-
-/* (참고) 플레이스홀더 글씨 색상 조정이 필요하면 추가 */
-.input_wrap input::placeholder {
-    color: #aaa;
-    font-size: 15px;
-}
-
-
-/* 출판사 관리, 카테고리 관리 모달 스타일 */
-
-#publisher-modal-wrap,
-#category-modal-wrap {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1100;
-    backdrop-filter: blur(2px); /* 배경 블러 효과 */
-}
-
-/* 모달 내부 박스 스타일 재정의 */
-#publisher-modal-wrap .modal-content,
-#category-modal-wrap .modal-content {
-    background-color: white;
-    width: 80%;
-    min-width: 600px;
-    height: auto;
-    max-height: 90vh;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-/* 기존 .board-container 스타일이 방해하지 않도록 초기화 */
-#publisher-modal-wrap .board-container,
-#category-modal-wrap .board-container {
-    height: auto !important;
-    display: block;
+  background-color: #757575;
 }
