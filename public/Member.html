@@ -12,13 +12,12 @@
     <div id="header">
       <div class="header-bar">
         <div id="logo">
-          <img src="./img/logo.png" width="120px" height="100px" onclick="navigateToPage()" style="cursor: pointer" />
+          <img src="./img/logo.png" width="120px" height="100px" onclick="location.href='Main.html'" style="cursor: pointer" />
         </div>
         <div class="Menu-bar" id="Menu-bar_Manager" style="display: block">
           <a class="Menu-item" type="button" href="ReviewManage.html">리뷰관리</a>
           <a class="Menu-item" type="button" href="Main.html">메인화면으로</a>
           <a class="Menu-item" type="button" href="bookDataEdit.html">도서편집</a>
-          <a class="Menu-item" type="button" href="CheckBook.html">도서대출/반납</a>
         </div>
         <div id="login">
           <div id="login_after" style="display: block">
@@ -27,130 +26,120 @@
         </div>
       </div>
     </div>
+
     <div class="main">
       <div id="contents_wrap">
         <div id="check_member_wrap" style="display: block">
           <div class="button_wrap">
             <img src="./img/search.png" width="70px" height="60px" style="margin-left: 10px" />
-            <form id="searchForm" method="POST">
+            
+            <form id="searchForm">
               <input type="text" id="search_Bar" placeholder="회원 이름을 입력하세요" />
-              <input id="member_Search_Btn" type="submit" onclick="change_join()" value="검색" />
-            </form>
-            <input
-              type="button"
-              value="전체 회원 조회"
-              class="div_change_btn"
-              onclick="change_join()"
-              id="join_member_btn"
-              style="margin-right: 10%"
-            />
+              <input id="member_Search_Btn" type="submit" value="검색" />
+            </form>      
+            
+            <input type="button" value="전체 회원 조회" class="div_change_btn" id="join_member_btn"/>
+            <input type="button" value="회원 등록" class="div_change_btn" onclick="showModal('signUp')" id="register_btn"/>
           </div>
+
           <div class="check_wrap" id="join_member_check_wrap" style="display: none">
             <div class="member_List" id="join_member_List">
-              <div class="top">
-                <div class="id">회원 ID</div>
-                <div class="name">이름</div>
-                <div class="gender">성별</div>
-                <div class="email">이메일 주소</div>
-                <div class="hp">회원 전화번호</div>
-                <div class="signup_date">가입일</div>
-                <div class="birthdate">생년월일</div>
-                <!--<div class="panalty_count">위반횟수</div> <input type="button" value="승인" class="allow" />-->
               </div>
-            </div>
           </div>
-          <div class="list_Page" id="list_Page" style="display: none"></div>
+          <div class="list_Page" id="list_Page" style="display: none">
+          </div>
         </div>
+
         <div class="member_Manage_wrap" id="member_Manage_wrap" style="display: none">
           <div class="manage_Wrap" id="manage_Wrap">
-            <div class="info_Wrap">
-              <div class="info_item">
-                <p>회원 번호 :</p>
-                <p id="p_num"></p>
-                <p id="p_admin" style="margin-left: 200px"></p>
-              </div>
-              <div class="info_item">
-                <p>회원 ID :</p>
-                <p id="p_id"></p>
-              </div>
-              <div class="info_item">
-                <p>이름 :</p>
-                <p id="p_name"></p>
-              </div>
-              <div class="info_item">
-                <p>성별 :</p>
-                <p id="p_gender"></p>
-              </div>
-              <div class="info_item">
-                <p>이메일 주소 :</p>
-                <p id="p_email"></p>
-              </div>
-              <div class="info_item">
-                <p>회원 전화번호 :</p>
-                <p id="p_hp"></p>
-              </div>
-              <div class="info_item">
-                <p>가입일 :</p>
-                <p id="p_signup_date"></p>
-              </div>
-              <div class="info_item">
-                <p>생년월일 :</p>
-                <p id="p_birth_date"></p>
-              </div>
-              <div class="info_item" id="info_Penalty">
-                <p>연체 횟수 :</p>
-                <div class="penalty">
-                  <input type="number" value="100" placeholder="수정할 횟수 입력" id="p_panalty_count" />
-                  <input type="button" class="" value="연체 추가" />
-                </div>
-              </div>
-            </div>
-            <div class="button_wrap">
-              <input type="button" value="관리자로 변경" class="div_change_btn" id="modify_admin_btn" />
-              <input type="button" value="회원 삭제" onclick="" class="div_change_btn" id="delete_btn" />
-              <input type="button" value="돌아가기" onclick="change_join()" class="div_change_btn" id="return_btn" />
-            </div>
+            <div class="info_Wrap" id="info_wrap"></div>
+            <div class="button_wrap" id="btn_wrap"></div>
           </div>
         </div>
       </div>
     </div>
-    <script>
-      function change_join() {
-        document.getElementById("join_member_check_wrap").style.display = "block";
-        document.getElementById("check_member_wrap").style.display = "block";
-        document.getElementById("member_Manage_wrap").style.display = "none";
-        document.getElementById("list_Page").style.display = "block";
-      }
-      function change_Modify(num) {
-        document.getElementById("check_member_wrap").style.display = "none";
-        document.getElementById("member_Manage_wrap").style.display = "block";
-        document.getElementById("p_num").textContent = document.getElementById(`num_${num}`).textContent;
-        const a = document.getElementById(`admin_${num}`).textContent;
-        document.getElementById("p_id").textContent = document.getElementById(`id_${num}`).textContent;
-        document.getElementById("p_name").textContent = document.getElementById(`name_${num}`).textContent;
-        document.getElementById("p_gender").textContent = document.getElementById(`gender_${num}`).textContent;
-        document.getElementById("p_email").textContent = document.getElementById(`email_${num}`).textContent;
-        document.getElementById("p_hp").textContent = document.getElementById(`hp_${num}`).textContent;
-        document.getElementById("p_signup_date").textContent = document.getElementById(`signup_date_${num}`).textContent;
-        document.getElementById("p_birth_date").textContent = document.getElementById(`birth_date_${num}`).textContent;
-        document.getElementById("p_panalty_count").value = document.getElementById(`panalty_count_${num}`).textContent;
-        if (a == 1) {
-          document.getElementById("info_Penalty").style.display = "none";
-          document.getElementById("p_admin").textContent = "관리자입니다.";
-          document.getElementById("modify_admin_btn").style.display = "none";
-          document.getElementById("delete_btn").style.display = "none";
-        } else {
-          document.getElementById("p_admin").textContent = "일반회원";
-          document.getElementById("modify_admin_btn").style.display = "block";
-          document.getElementById("delete_btn").style.display = "block";
-          document.getElementById("info_Penalty").style.display = "block";
-        }
-      }
-      function logout() {
-        localStorage.removeItem("authToken");
-        window.location.href = "Main.html";
-      }
-    </script>
+
+    <section id="modal_section">
+      
+      <div id="signUpModal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeModal('signUpModal')">&times;</span>
+          <h2 id="modal_title" style="text-align: center;">회원 등록</h2>
+          
+          <form id="memberForm" style="display: flex; flex-direction: column; gap: 10px;">
+            <input type="hidden" id="target_pk">
+            
+            <label for="modal_login_id">회원 ID</label>
+            <input type="text" id="modal_login_id" name="modal_login_id" required>
+            
+            <label for="modal_password">비밀번호 <span style="font-size:0.8em; color:gray;">(변경 시에만 입력)</span></label>
+            <input type="password" id="modal_password" name="modal_password">
+            
+            <label for="modal_first_name">이름</label>
+            <input type="text" id="modal_first_name" name="modal_first_name" required>
+
+            <label for="modal_email">이메일</label>
+            <input type="email" id="modal_email" name="modal_email" required>
+
+            <label for="modal_phone_number">전화번호</label>
+            <input type="tel" id="modal_phone_number" name="modal_phone_number" maxlength="11" placeholder="-없이 입력" required>
+
+            <label for="modal_birth_date">생년월일</label>
+            <input type="date" id="modal_birth_date" name="modal_birth_date" required>
+            
+            <label for="modal_status">회원 상태</label>
+            <select id="modal_status" name="modal_status" style="padding: 5px;">
+                <option value="정상">정상</option>
+                <option value="대여정지">대여정지</option>
+                <option value="탈퇴">탈퇴</option>
+            </select>
+
+            <div id="overdue_date_area" style="display:none;">
+                <label>연체 종료일</label>
+                <input type="date" id="modal_overdue_date">
+            </div>
+
+            <div id="btn_box" style="margin-top: 20px; text-align: center;">
+              <button type="submit" id="submit_btn" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px;">등록하기</button>
+              <button type="button" id="delete_act_btn" onclick="deleteMember()" style="background: #f44336; color: white; padding: 10px 20px; border: none; cursor: pointer; display: none; border-radius: 4px;">탈퇴처리</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="borrowModal" class="modal">
+        <div class="modal-content" style="width: 800px;">
+          <span class="close" onclick="closeModal('borrowModal')">&times;</span>
+          <h2 style="text-align: center;"><span id="history_member_name"></span>님의 대여/반납 내역</h2>
+          
+          <div id="borrow_history_list_wrap" style="margin-top: 20px;">
+            </div>
+          <div style="text-align: right; margin-top: 10px;">
+            <button onclick="closeModal('borrowModal')" style="padding: 10px 20px; cursor: pointer;">닫기</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="rent_modal" class="modal">
+          <div class="modal-content" style="width: 400px; text-align: center;">
+              <span class="close" onclick="closeModal('rent_modal')">&times;</span>
+              <h3>도서 대여 처리</h3>
+              <p>대여 회원: <span id="rent_target_name" style="font-weight: bold; color: blue;"></span></p>
+              <input type="hidden" id="rent_target_member_id">
+              
+              <div style="margin: 20px 0;">
+                  <input type="text" id="rent_isbn_input" placeholder="도서 ISBN 입력" style="width: 80%; padding: 10px; font-size: 16px;">
+              </div>
+              
+              <div>
+                  <button onclick="processRent()" style="background: #4CAF50; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px;">대여 실행</button>
+                  <button onclick="closeModal('rent_modal')" style="background: #ccc; padding: 10px 20px; border: none; cursor: pointer; border-radius: 4px;">취소</button>
+              </div>
+          </div>
+      </div>
+
+    </section>
+
     <script src="./js/Member_manage.js"></script>
   </body>
 </html>

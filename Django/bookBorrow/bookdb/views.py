@@ -891,7 +891,7 @@ def admin_list_members(request):
             )
 
         members_list = list(members.values(
-            'member_id', 'login_id', 'first_name', 'email', 
+            'id', 'login_id', 'first_name', 'email', 
             'phone_number', 'birth_date', 'status', 'date_joined', 'is_active'
         ))
         
@@ -908,12 +908,12 @@ def admin_get_member(request, member_id):
 
     if not request.user.is_authenticated or not request.user.is_staff:
         return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
-
+    
     try:
-        member = Member.objects.get(member_id=member_id)
+        member = Member.objects.get(id=member_id)
         
         return JsonResponse({
-            'member_id': member.member_id,
+            'member_id': member.id,
             'login_id': member.login_id,
             'first_name': member.first_name,
             'email': member.email,
@@ -922,7 +922,8 @@ def admin_get_member(request, member_id):
             'status': member.status,
             'overdue_end_date': member.overdue_end_date,
             'date_joined': member.date_joined,
-            'is_active': member.is_active
+            'is_active': member.is_active,
+            'is_staff': member.is_staff
         }, status=200)
 
     except Member.DoesNotExist:
@@ -939,6 +940,8 @@ def admin_create_member(request):
         return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
 
     try:
+
+        print(request.body)
         data = json.loads(request.body)
         
         #필수 정보 추출
@@ -966,7 +969,7 @@ def admin_create_member(request):
             status=status
         )
         
-        return JsonResponse({"message": "회원이 성공적으로 등록되었습니다.", "member_id": new_member.member_id}, status=201)
+        return JsonResponse({"message": "회원이 성공적으로 등록되었습니다.", "member_id": new_member.login_id}, status=201)
 
     except IntegrityError:
         return JsonResponse({"error": "이미 존재하는 아이디, 이메일 또는 전화번호입니다."}, status=400)
@@ -985,13 +988,14 @@ def admin_update_member(request, member_id):
         return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
 
     try:
-        member = Member.objects.get(member_id=member_id)
+        member = Member.objects.get(id=member_id)
         data = json.loads(request.body)
 
         # 수정 가능한 필드들 (값이 있는 경우에만 업데이트)
         if 'first_name' in data: member.first_name = data['first_name']
         if 'email' in data: member.email = data['email']
         if 'phone_number' in data: member.phone_number = data['phone_number']
+        if 'birth_date' in data: member.birth_date = data['birth_date']
         
         #관리자 기능: 상태 변경 (정상, 대여정지, 탈퇴 등)
         if 'status' in data: 
@@ -1000,7 +1004,6 @@ def admin_update_member(request, member_id):
             #상태가 '정상'으로 돌아오면 연체 종료일 초기화
             if member.status == '정상':
                 member.overdue_end_date = None
-            
             #상태가 '탈퇴'라면 비활성화 처리
             if member.status == '탈퇴':
                 member.is_active = False
@@ -1031,7 +1034,7 @@ def admin_delete_member(request, member_id):
         return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
 
     try:
-        member = Member.objects.get(member_id=member_id)
+        member = Member.objects.get(id=member_id)
         
         #비활성화 처리
         member.is_active = False
@@ -1051,10 +1054,9 @@ def admin_member_borrows(request, member_id):
     #관리자 권한 확인
     if not request.user.is_authenticated or not request.user.is_staff:
         return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
-
     try:
         #조회 대상 회원이 존재하는지 확인
-        target_member = Member.objects.get(member_id=member_id)
+        target_member = Member.objects.get(id=member_id)
 
         #해당 회원의 대여/반납 기록 조회 (최신순 정렬)
         borrows_queryset = Borrow.objects.filter(member=target_member).select_related(
@@ -1087,22 +1089,21 @@ def admin_borrow_book(request):
     if request.method != 'POST':
         return JsonResponse({"error": "POST 요청만 허용됩니다."}, status=405)
 
-    #관리자 권한 확인
+    # 관리자 권한 확인
     if not request.user.is_authenticated or not request.user.is_staff:
         return JsonResponse({"error": "관리자 권한이 필요합니다."}, status=403)
 
     try:
         data = json.loads(request.body)
-        target_member_id = data['member_id'] #관리자가 지정한 회원
+        target_member_id = data['member_id'] 
         isbn_list = data['isbns']
         
-        target_member = Member.objects.get(member_id=target_member_id)
+        target_member = Member.objects.get(id=target_member_id)
 
-        #회원이 대여 정지 상태인지 확인
-        #관리자 권한으로 무시하게 할 수도 있지만 규칙을 지키는 것이 꼬이는 경우 방지
+        # [수정] .name -> .first_name 으로 변경
         if target_member.status == "대여정지":
              return JsonResponse({
-                "error": f"해당 회원({target_member.name})은 '대여정지' 상태입니다. 회원 정보 수정에서 상태를 변경하세요."
+                "error": f"해당 회원({target_member.first_name})은 '대여정지' 상태입니다. 회원 정보 수정에서 상태를 변경하세요."
             }, status=400)
 
     except (KeyError, json.JSONDecodeError):
@@ -1110,16 +1111,16 @@ def admin_borrow_book(request):
     except Member.DoesNotExist:
         return JsonResponse({"error": "존재하지 않는 회원입니다."}, status=404)
 
-    #대여 로직 (borrow_books와 동일하지만 대상이 target_member)
     successful_borrows = []
     failed_borrows = []
     today = date.today()
-    due_date = today + timedelta(days=14)
+    policy = Policy.load()
+    due_date = today + timedelta(days=policy.default_due_days)
 
     try:
         with transaction.atomic():
             for isbn in isbn_list:
-                # 수정: ForeignKey 검색 (isbn__isbn)
+                # ISBN 검색
                 available_copy = Book.objects.select_for_update().filter(
                     isbn__isbn=isbn, 
                     status=Book.Status.AVAILABLE
@@ -1127,7 +1128,7 @@ def admin_borrow_book(request):
 
                 if available_copy:
                     Borrow.objects.create(
-                        member=target_member, #관리자가 아닌 '대상 회원' 명의로 대여
+                        member=target_member, 
                         book=available_copy, 
                         borrow_date=today,
                         due_date=due_date
@@ -1141,8 +1142,9 @@ def admin_borrow_book(request):
     except Exception as e:
         return JsonResponse({"error": f"관리자 대여 처리 중 오류: {str(e)}"}, status=500)
 
+    # [수정] .name -> .first_name 으로 변경
     return JsonResponse({
-        "message": f"{target_member.name}님에 대한 대여 처리가 완료되었습니다.",
+        "message": f"{target_member.first_name}님에 대한 대여 처리가 완료되었습니다.",
         "successful_isbns": successful_borrows,
         "failed_isbns": failed_borrows
     }, status=200)
@@ -1157,21 +1159,17 @@ def admin_return_book(request):
 
     try:
         data = json.loads(request.body)
-        borrow_id = data['borrow_id'] #반납할 대여 기록 ID
+        borrow_id = data['borrow_id'] 
         
         with transaction.atomic():
-            loan = Borrow.objects.select_related('book', 'member').get(borrow_id=borrow_id)
+            loan = Borrow.objects.select_related('book', 'member').get(pk=borrow_id)
             
-            #사용자용 API와 달리 본인 확인(loan.member == request.user) 절차가 없음
-            #관리자는 누구의 책이든 반납 처리 가능 해야 함
-
             if loan.return_date is not None:
                 return JsonResponse({"error": "이미 반납 처리된 도서입니다."}, status=400)
 
             today = date.today()
             is_overdue = False
 
-            #반납 처리
             loan.return_date = today
             loan.save()
 
@@ -1179,17 +1177,18 @@ def admin_return_book(request):
             book_to_return.status = Book.Status.AVAILABLE
             book_to_return.save()
 
-            #연체 처리
             if today > loan.due_date:
                 is_overdue = True
                 member = loan.member
                 member.status = "대여정지"
-                member.overdue_end_date = today + timedelta(days=7)
+                policy = Policy.load()
+                member.overdue_end_date = today + timedelta(days=policy.overdue_penalty_days)
                 member.save()
 
+            # [수정] loan.member.name -> loan.member.first_name 으로 변경
             return JsonResponse({
                 "message": "관리자 권한으로 반납 처리가 완료되었습니다.",
-                "returned_member": loan.member.name,
+                "returned_member": loan.member.first_name,
                 "is_overdue": is_overdue
             }, status=200)
 
